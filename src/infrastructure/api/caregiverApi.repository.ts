@@ -1,0 +1,121 @@
+'use client';
+
+import { apiRequest } from './apiClient';
+import type {
+  CaregiverPatient,
+  CaregiverToday,
+  CaregiverOnboardingPayload,
+  CaregiverOnboardingResult,
+  Medication,
+  CreateMedicationInput,
+  CreateMedicationResult,
+  LogMedicationInput,
+  LogMedicationResult,
+  Appointment,
+  CreateAppointmentInput,
+  CreateAppointmentResult,
+} from '@/domain/caregiver/caregiver.types';
+
+/**
+ * Fetches the caregiver's linked patient profile from the backend.
+ * Throws ApiError with status 404 if no patient has been linked yet.
+ */
+export async function getCaregiverPatient(token: string): Promise<CaregiverPatient> {
+  return apiRequest<CaregiverPatient>('/api/v1/caregiver/patient', {
+    method: 'GET',
+    token,
+  });
+}
+
+/**
+ * Fetches today's medications and appointments for the caregiver's patient.
+ * Returns empty arrays if nothing is scheduled.
+ */
+export async function getCaregiverToday(token: string): Promise<CaregiverToday> {
+  return apiRequest<CaregiverToday>('/api/v1/caregiver/today', {
+    method: 'GET',
+    token,
+  });
+}
+
+/**
+ * Submits the caregiver onboarding form data to the backend,
+ * creating the patient record and linking it to the caregiver.
+ */
+export async function submitCaregiverOnboarding(
+  token: string,
+  payload: CaregiverOnboardingPayload,
+): Promise<CaregiverOnboardingResult> {
+  return apiRequest<CaregiverOnboardingResult>('/api/v1/caregiver/onboarding', {
+    method: 'POST',
+    token,
+    body: JSON.stringify(payload),
+  });
+}
+
+// ── Medications ──────────────────────────────────────────────────────────────
+
+/**
+ * Fetches the full list of medications registered for the caregiver's patient.
+ */
+export async function getMedications(token: string): Promise<Medication[]> {
+  return apiRequest<Medication[]>('/api/v1/caregiver/medications', {
+    method: 'GET',
+    token,
+  });
+}
+
+/**
+ * Creates a new medication record for the caregiver's patient.
+ */
+export async function createMedication(
+  token: string,
+  input: CreateMedicationInput,
+): Promise<CreateMedicationResult> {
+  return apiRequest<CreateMedicationResult>('/api/v1/caregiver/medications', {
+    method: 'POST',
+    token,
+    body: JSON.stringify(input),
+  });
+}
+
+/**
+ * Logs a medication intake event for a specific medication.
+ */
+export async function logMedication(
+  token: string,
+  id: string,
+  input: LogMedicationInput,
+): Promise<LogMedicationResult> {
+  return apiRequest<LogMedicationResult>(`/api/v1/caregiver/medications/${id}/log`, {
+    method: 'POST',
+    token,
+    body: JSON.stringify(input),
+  });
+}
+
+// ── Appointments ─────────────────────────────────────────────────────────────
+
+/**
+ * Fetches the full list of appointments for the caregiver's patient.
+ */
+export async function getAppointments(token: string): Promise<Appointment[]> {
+  return apiRequest<Appointment[]>('/api/v1/caregiver/appointments', {
+    method: 'GET',
+    token,
+  });
+}
+
+/**
+ * Creates a new appointment for the caregiver's patient.
+ */
+export async function createAppointment(
+  token: string,
+  input: CreateAppointmentInput,
+): Promise<CreateAppointmentResult> {
+  return apiRequest<CreateAppointmentResult>('/api/v1/caregiver/appointments', {
+    method: 'POST',
+    token,
+    body: JSON.stringify(input),
+  });
+}
