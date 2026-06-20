@@ -4,6 +4,7 @@ import { useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCaregiverAppointments } from '@/application/caregiver/useCaregiverAppointments';
 import { CaregiverAppointmentsScreen } from '@/presentation/caregiver/CaregiverAppointmentsScreen';
+import { CaregiverShell } from '@/presentation/layout/CaregiverShell';
 import { routes } from '@/core/routing/routes';
 
 /**
@@ -25,13 +26,15 @@ export default function CaregiverAgendaPage() {
   }, [router]);
 
   return (
-    <CaregiverAppointmentsScreen
-      appointments={appointments}
-      isLoading={isLoading}
-      isError={isError}
-      error={error}
-      onReload={reload}
-      onAdd={handleAdd}
-    />
+    <CaregiverShell activeTab="agenda">
+      <CaregiverAppointmentsScreen
+        appointments={appointments}
+        isLoading={isLoading}
+        isError={isError}
+        error={error}
+        onReload={reload}
+        onAdd={handleAdd}
+      />
+    </CaregiverShell>
   );
 }

@@ -62,7 +62,7 @@ export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>(
             aria-invalid={error ? 'true' : undefined}
             aria-describedby={describedBy || undefined}
             className={cn(
-              'w-full rounded-2xl border bg-white px-4 py-3.5',
+              'w-full min-w-0 rounded-2xl border bg-white px-4 py-3.5',
               'text-base text-brand-dark placeholder:text-gray-text/60',
               'border-gray-200 transition-all duration-200',
               'hover:border-brand-primary/50',

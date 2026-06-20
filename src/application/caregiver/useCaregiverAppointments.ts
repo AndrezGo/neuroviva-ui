@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { createSupabaseBrowserClient } from '@/infrastructure/supabase/client.browser';
+import { supabaseAuthRepository } from '@/infrastructure/auth/supabaseAuth.repository';
 import {
   getAppointments,
   createAppointment as createAppointmentRepo,
@@ -47,12 +47,9 @@ export function useCaregiverAppointments(): UseCaregiverAppointmentsReturn {
     setAppointments([]);
 
     try {
-      const supabase = createSupabaseBrowserClient();
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+      const token = await supabaseAuthRepository.getAccessToken();
 
-      if (!session) {
+      if (!token) {
         if (!active.current) return;
         setIsError(true);
         setError('Tu sesión expiró. Inicia sesión de nuevo.');
@@ -60,7 +57,7 @@ export function useCaregiverAppointments(): UseCaregiverAppointmentsReturn {
         return;
       }
 
-      const data = await getAppointments(session.access_token);
+      const data = await getAppointments(token);
 
       if (!active.current) return;
       setAppointments(data);
@@ -93,12 +90,9 @@ export function useCaregiverAppointments(): UseCaregiverAppointmentsReturn {
       setCreateError(null);
 
       try {
-        const supabase = createSupabaseBrowserClient();
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
+        const token = await supabaseAuthRepository.getAccessToken();
 
-        if (!session) {
+        if (!token) {
           setCreateError('Tu sesión expiró. Inicia sesión de nuevo.');
           return false;
         }
@@ -111,7 +105,7 @@ export function useCaregiverAppointments(): UseCaregiverAppointmentsReturn {
           notes: input.notes || undefined,
         };
 
-        await createAppointmentRepo(session.access_token, payload);
+        await createAppointmentRepo(token, payload);
         reload();
         return true;
       } catch (err) {

@@ -4,7 +4,7 @@ import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/shared/store/useAuthStore';
 import { assignRole } from '@/infrastructure/api/userApi.repository';
-import { createSupabaseBrowserClient } from '@/infrastructure/supabase/client.browser';
+import { supabaseAuthRepository } from '@/infrastructure/auth/supabaseAuth.repository';
 import { toBackendRole } from '@/domain/user/roleMapper';
 import { routes, getPostRoleRoute } from '@/core/routing/routes';
 import type { UserRole } from '@/domain/auth/auth.types';
@@ -39,20 +39,17 @@ export function useRoleSelection(): UseRoleSelectionReturn {
     setError(null);
 
     try {
-      // Retrieve the current Supabase session to get a fresh access token
-      const supabase = createSupabaseBrowserClient();
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+      // Retrieve the current access token for authenticated backend call
+      const token = await supabaseAuthRepository.getAccessToken();
 
-      if (!session) {
+      if (!token) {
         // Session expired — redirect to login
         router.push(routes.login());
         return;
       }
 
       const backendRoleName = toBackendRole(storeRole);
-      const updatedUser = await assignRole(session.access_token, backendRoleName);
+      const updatedUser = await assignRole(token, backendRoleName);
 
       setBackendUser(updatedUser);
       router.push(getPostRoleRoute(backendRoleName));

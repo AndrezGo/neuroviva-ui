@@ -54,7 +54,20 @@ export function CaregiverHomeScreen({
       />
 
       {/* Main white body */}
-      <main className="flex flex-1 flex-col gap-6 px-5 pt-6 pb-28">
+      <main className="flex flex-1 flex-col gap-6 px-5 lg:px-10 pt-6 lg:pt-8 pb-[calc(7rem+env(safe-area-inset-bottom))] lg:pb-10 lg:max-w-4xl lg:mx-auto lg:w-full">
+        {/* Desktop-only page header — greeting + name */}
+        <header className="hidden lg:block">
+          <span className="text-xs font-semibold uppercase tracking-widest text-brand-primary">
+            {greeting}
+          </span>
+          <h1 className="mt-1 text-3xl font-black tracking-tight text-brand-dark">
+            {firstName ? `Hola, ${firstName}` : 'Hola'}
+          </h1>
+          <p className="mt-1 text-sm text-gray-text">
+            Este es el resumen de hoy para tu paciente.
+          </p>
+        </header>
+
         {/* Error panel — shown when API fetch fails */}
         {isError && (
           <div

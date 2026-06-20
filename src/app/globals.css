@@ -3,10 +3,16 @@
 @theme {
   /* ── Brand palette ─────────────────────────────────────── */
   --color-brand-dark: #102A43;
+  --color-brand-surface: #1E3A5F;
   --color-brand-primary: #0E9384;
   --color-brand-primary-dark: #0B7A6E;
   --color-brand-primary-light: #E0F5F1;
-  --color-splash-bg: #102A43;
+  --color-splash-bg: #111827;
+
+  /* ── Gradient tokens ──────────────────────────────────── */
+  --gradient-brand: linear-gradient(135deg, #1E3A5F 0%, #0E9384 140%);
+  --gradient-brand-subtle: linear-gradient(135deg, #f0fafa 0%, #e6f7f5 100%);
+  --gradient-splash: linear-gradient(160deg, #111827 0%, #0B2A28 55%, #063A35 100%);
 
   /* ── Neutral / text ───────────────────────────────────── */
   --color-gray-text: #52677D;
@@ -63,6 +69,11 @@
 *::before,
 *::after {
   box-sizing: border-box;
+}
+
+html,
+body {
+  overflow-x: hidden;
 }
 
 html {

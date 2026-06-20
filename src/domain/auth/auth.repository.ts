@@ -16,4 +16,10 @@ export interface AuthRepository {
   signUp(input: SignUpInput): Promise<AuthResult<AuthSession>>;
   signInWithGoogle(): Promise<AuthResult<void>>;
   resetPassword(input: ResetPasswordInput): Promise<AuthResult<void>>;
+  signOut(): Promise<AuthResult<void>>;
+  /**
+   * Returns the access token of the active session, or null if there is no session.
+   * Framework-agnostic: no Supabase types leak through.
+   */
+  getAccessToken(): Promise<string | null>;
 }

@@ -4,6 +4,7 @@ import { useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCaregiverMedications } from '@/application/caregiver/useCaregiverMedications';
 import { MedicationFormScreen } from '@/presentation/caregiver/MedicationFormScreen';
+import { CaregiverShell } from '@/presentation/layout/CaregiverShell';
 import { routes } from '@/core/routing/routes';
 import type { MedicationFormValues } from '@/application/caregiver/caregiverSchemas';
 
@@ -27,10 +28,12 @@ export default function CaregiverMedicinasNuevoPage() {
   );
 
   return (
-    <MedicationFormScreen
-      onSubmit={handleSubmit}
-      isSubmitting={isCreating}
-      submitError={createError}
-    />
+    <CaregiverShell activeTab="meds">
+      <MedicationFormScreen
+        onSubmit={handleSubmit}
+        isSubmitting={isCreating}
+        submitError={createError}
+      />
+    </CaregiverShell>
   );
 }

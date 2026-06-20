@@ -12,7 +12,7 @@ interface MobileShellProps {
  */
 export function MobileShell({ children, className, bg = 'bg-white' }: MobileShellProps) {
   return (
-    <div className="min-h-dvh w-full bg-slate-100">
+    <div className="min-h-dvh w-full bg-slate-100 overflow-x-hidden">
       <div
         className={cn(
           'mx-auto flex min-h-dvh w-full max-w-md flex-col',

@@ -1,11 +1,9 @@
 'use client';
 
 import { useCallback, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { supabaseAuthRepository } from '@/infrastructure/auth/supabaseAuth.repository';
-import { syncUser } from '@/infrastructure/api/userApi.repository';
 import { useAuthStore } from '@/shared/store/useAuthStore';
-import { routes, getHomeByRole } from '@/core/routing/routes';
+import { usePostAuthNavigation } from '@/application/auth/usePostAuthNavigation';
 import type { SignInInput } from '@/domain/auth/auth.types';
 
 interface UseSignInReturn {
@@ -18,8 +16,9 @@ export function useSignIn(): UseSignInReturn {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const setSession = useAuthStore((s) => s.setSession);
-  const setBackendUser = useAuthStore((s) => s.setBackendUser);
-  const router = useRouter();
+
+  // Shared post-auth orchestration: syncs with backend and navigates by role.
+  const { run: runPostAuthNavigation, isLoading: isNavigating } = usePostAuthNavigation();
 
   const signIn = useCallback(
     async (input: SignInInput) => {
@@ -34,28 +33,16 @@ export function useSignIn(): UseSignInReturn {
         return;
       }
 
+      // Persist the full session (tokens + user) before navigating.
       setSession(result.data);
 
-      // Sync with the .NET backend to retrieve roles and profile
-      try {
-        const backendUser = await syncUser(result.data.accessToken);
-        setBackendUser(backendUser);
+      // Delegate sync + navigation to the shared hook — no logic duplication.
+      await runPostAuthNavigation();
 
-        if (backendUser.roles.length > 0) {
-          // User already has a role — navigate to the role-specific home
-          router.push(getHomeByRole(backendUser.roles[0]));
-        } else {
-          // No role yet — let the user pick one
-          router.push(routes.roleSelection());
-        }
-      } catch {
-        // Backend is unreachable or returned an error.
-        // Still allow the user to proceed to role selection rather than blocking login.
-        router.push(routes.roleSelection());
-      }
+      setIsLoading(false);
     },
-    [setSession, setBackendUser, router],
+    [setSession, runPostAuthNavigation],
   );
 
-  return { signIn, isLoading, error };
+  return { signIn, isLoading: isLoading || isNavigating, error };
 }

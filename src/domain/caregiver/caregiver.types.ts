@@ -56,6 +56,7 @@ export interface Medication {
   startDate: string | null;
   endDate: string | null;
   createdAt: string;
+  takenToday?: boolean;
 }
 
 export interface CreateMedicationInput {
@@ -97,4 +98,10 @@ export interface CreateAppointmentInput {
 
 export interface CreateAppointmentResult {
   appointmentId: string;
+}
+
+export interface MedicationLog {
+  id: string;
+  takenAt: string; // ISO 8601
+  notes: string | null;
 }

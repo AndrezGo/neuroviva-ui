@@ -14,7 +14,7 @@ interface CaregiverComingSoonProps {
 export function CaregiverComingSoon({ title, activeTab }: CaregiverComingSoonProps) {
   return (
     <>
-      <main className="flex flex-1 flex-col items-center justify-center px-6 pb-28 text-center">
+      <main className="flex flex-1 flex-col items-center justify-center px-6 lg:px-10 pt-10 lg:pt-8 pb-[calc(7rem+env(safe-area-inset-bottom))] lg:pb-10 text-center lg:max-w-4xl lg:mx-auto lg:w-full">
         <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-primary-light text-brand-primary">
           <span className="text-2xl" aria-hidden="true">🔧</span>
         </div>

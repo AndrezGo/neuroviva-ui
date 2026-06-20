@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useCaregiverOnboardingStore } from '@/shared/store/useCaregiverOnboardingStore';
 import { usePreferencesStore } from '@/shared/store/usePreferencesStore';
 import { useAuthStore } from '@/shared/store/useAuthStore';
-import { createSupabaseBrowserClient } from '@/infrastructure/supabase/client.browser';
+import { supabaseAuthRepository } from '@/infrastructure/auth/supabaseAuth.repository';
 import { submitCaregiverOnboarding } from '@/infrastructure/api/caregiverApi.repository';
 import { routes } from '@/core/routing/routes';
 import type { CaregiverCondition } from '@/domain/onboarding/onboarding.types';
@@ -120,20 +120,17 @@ export function useCaregiverOnboarding(): UseCaregiverOnboardingReturn {
   }, []);
 
   const finish = useCallback(async () => {
-    // Retrieve Supabase session for authenticated backend call
-    const supabase = createSupabaseBrowserClient();
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
+    // Retrieve access token for authenticated backend call
+    const token = await supabaseAuthRepository.getAccessToken();
 
-    if (!session) {
+    if (!token) {
       // No active session — redirect to login
       router.push(routes.login());
       return;
     }
 
     try {
-      await submitCaregiverOnboarding(session.access_token, {
+      await submitCaregiverOnboarding(token, {
         patientName,
         relation: relation ?? '',
         condition: conditions.join(','),

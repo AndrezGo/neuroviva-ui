@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { createSupabaseBrowserClient } from '@/infrastructure/supabase/client.browser';
+import { supabaseAuthRepository } from '@/infrastructure/auth/supabaseAuth.repository';
 import { getCaregiverPatient, getCaregiverToday } from '@/infrastructure/api/caregiverApi.repository';
 import { ApiError } from '@/infrastructure/api/apiClient';
 import { useCaregiverOnboardingStore } from '@/shared/store/useCaregiverOnboardingStore';
@@ -43,20 +43,15 @@ export function useCaregiverHome(): UseCaregiverHomeReturn {
     setPatientMissing(false);
 
     try {
-      const supabase = createSupabaseBrowserClient();
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+      const token = await supabaseAuthRepository.getAccessToken();
 
-      if (!session) {
+      if (!token) {
         if (!active.current) return;
         setIsError(true);
         setError('Tu sesión expiró. Inicia sesión de nuevo.');
         setIsLoading(false);
         return;
       }
-
-      const token = session.access_token;
 
       // Fetch patient and today in parallel — patient 404 must not kill today fetch
       const [patientResult, todayResult] = await Promise.allSettled([

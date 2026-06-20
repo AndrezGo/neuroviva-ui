@@ -137,7 +137,7 @@ export class SupabaseAuthRepository implements AuthRepository {
     const { error } = await this.client.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${env.siteUrl}/role-selection`,
+        redirectTo: `${env.siteUrl}/auth/callback`,
       },
     });
 
@@ -164,6 +164,24 @@ export class SupabaseAuthRepository implements AuthRepository {
     }
 
     return { ok: true, data: undefined };
+  }
+
+  async signOut(): Promise<AuthResult<void>> {
+    const { error } = await this.client.auth.signOut();
+
+    if (error) {
+      return { ok: false, message: mapSupabaseError(error.message) };
+    }
+
+    return { ok: true, data: undefined };
+  }
+
+  async getAccessToken(): Promise<string | null> {
+    const {
+      data: { session },
+    } = await this.client.auth.getSession();
+
+    return session?.access_token ?? null;
   }
 }
 

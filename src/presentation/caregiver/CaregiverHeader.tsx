@@ -28,14 +28,14 @@ export function CaregiverHeader({
   const patientInitial = patient?.name ? patient.name.charAt(0).toUpperCase() : '?';
 
   return (
-    <header className="rounded-b-3xl bg-brand-dark px-5 pt-10 pb-6">
+    <header className="rounded-b-3xl bg-brand-surface px-5 pt-10 pb-6 lg:hidden">
       {/* Top row: greeting + bell */}
       <div className="flex items-start justify-between">
-        <div className="flex flex-col gap-1">
+        <div className="flex min-w-0 flex-col gap-1">
           <span className="text-xs font-semibold uppercase tracking-widest text-brand-primary">
             {greeting}
           </span>
-          <h1 className="text-2xl font-bold text-white">
+          <h1 className="text-2xl font-bold text-white break-words">
             {firstName ? (
               <>
                 Hola, {firstName}{' '}
@@ -59,9 +59,9 @@ export function CaregiverHeader({
           onClick={onBellClick}
           aria-label="Notificaciones"
           className={cn(
-            'relative mt-1 flex h-10 w-10 items-center justify-center rounded-full bg-white/10',
+            'relative mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/10',
             'text-white transition-colors hover:bg-white/20',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-brand-dark',
+            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-brand-surface',
           )}
         >
           <Bell className="h-5 w-5" aria-hidden="true" />
@@ -83,7 +83,7 @@ export function CaregiverHeader({
             className={cn(
               'flex w-full items-center gap-3 rounded-2xl bg-white/10 p-4',
               'text-left transition-colors hover:bg-white/15',
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-brand-dark',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-brand-surface',
             )}
           >
             {/* Avatar */}
@@ -110,7 +110,7 @@ export function CaregiverHeader({
             className={cn(
               'flex w-full items-center gap-3 rounded-2xl bg-white/10 p-4',
               'text-left transition-colors hover:bg-white/15',
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-brand-dark',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-brand-surface',
             )}
           >
             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white/10">

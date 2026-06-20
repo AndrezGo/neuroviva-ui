@@ -4,6 +4,7 @@ import { useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCaregiverMedications } from '@/application/caregiver/useCaregiverMedications';
 import { CaregiverMedicationsScreen } from '@/presentation/caregiver/CaregiverMedicationsScreen';
+import { CaregiverShell } from '@/presentation/layout/CaregiverShell';
 import { routes } from '@/core/routing/routes';
 
 /**
@@ -27,17 +28,27 @@ export default function CaregiverMedicinasPage() {
     router.push(routes.caregiverMedsNew());
   }, [router]);
 
+  const handleViewHistory = useCallback(
+    (id: string) => {
+      router.push(routes.caregiverMedHistory(id));
+    },
+    [router],
+  );
+
   return (
-    <CaregiverMedicationsScreen
-      medications={medications}
-      isLoading={isLoading}
-      isError={isError}
-      error={error}
-      onReload={reload}
-      onAdd={handleAdd}
-      onLog={logMedication}
-      loggingId={loggingId}
-      logError={logError}
-    />
+    <CaregiverShell activeTab="meds">
+      <CaregiverMedicationsScreen
+        medications={medications}
+        isLoading={isLoading}
+        isError={isError}
+        error={error}
+        onReload={reload}
+        onAdd={handleAdd}
+        onLog={logMedication}
+        onViewHistory={handleViewHistory}
+        loggingId={loggingId}
+        logError={logError}
+      />
+    </CaregiverShell>
   );
 }

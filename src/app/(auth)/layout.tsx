@@ -1,5 +1,5 @@
-import { MobileShell } from '@/presentation/layout/MobileShell';
+import { AuthShell } from '@/presentation/layout/AuthShell';
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
-  return <MobileShell bg="bg-white">{children}</MobileShell>;
+  return <AuthShell>{children}</AuthShell>;
 }

@@ -5,74 +5,101 @@ import { Pill } from 'lucide-react';
 import { Button } from '@/presentation/ui/Button';
 import { CaregiverTabBar } from './CaregiverTabBar';
 import { cn } from '@/shared/lib/cn';
+import { LogIntakeSheet } from './LogIntakeSheet';
 import type { Medication } from '@/domain/caregiver/caregiver.types';
 
 // ── MedicationListItem ────────────────────────────────────────────────────────
 
 interface MedicationListItemProps {
   medication: Medication;
-  onLog: (id: string) => Promise<boolean>;
+  onLog: (id: string, notes?: string) => Promise<boolean>;
+  onViewHistory: (id: string) => void;
   isLogging: boolean;
 }
 
-function MedicationListItem({ medication, onLog, isLogging }: MedicationListItemProps) {
-  const [justLogged, setJustLogged] = useState(false);
+function MedicationListItem({
+  medication,
+  onLog,
+  onViewHistory,
+  isLogging,
+}: MedicationListItemProps) {
+  const [sheetOpen, setSheetOpen] = useState(false);
 
-  const handleLog = useCallback(async () => {
-    const success = await onLog(medication.id);
-    if (success) {
-      setJustLogged(true);
-      setTimeout(() => setJustLogged(false), 2500);
-    }
-  }, [onLog, medication.id]);
+  const handleConfirm = useCallback(
+    async (notes?: string) => {
+      await onLog(medication.id, notes);
+      setSheetOpen(false);
+    },
+    [onLog, medication.id],
+  );
 
   return (
-    <li className="flex items-center gap-3 py-4 border-b border-gray-100 last:border-b-0">
-      {/* Icon */}
-      <div
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-primary-light text-brand-primary"
-        aria-hidden="true"
-      >
-        <Pill className="h-5 w-5" />
-      </div>
-
-      {/* Info */}
-      <div className="flex-1 min-w-0">
-        <p className="truncate text-sm font-semibold text-brand-dark">{medication.name}</p>
-        <p className="truncate text-xs text-gray-text">
-          {medication.dose} · {medication.frequency}
-        </p>
-        <span
-          className={cn(
-            'mt-1 inline-block rounded-full px-2 py-0.5 text-xs font-medium',
-            medication.active
-              ? 'bg-success-light text-success'
-              : 'bg-gray-100 text-gray-text',
-          )}
+    <>
+      <li className="flex items-center gap-3 py-4 border-b border-gray-100 last:border-b-0">
+        {/* Icon */}
+        <div
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-primary-light text-brand-primary"
+          aria-hidden="true"
         >
-          {medication.active ? 'Activo' : 'Inactivo'}
-        </span>
-      </div>
+          <Pill className="h-5 w-5" />
+        </div>
 
-      {/* Action */}
-      <div className="shrink-0">
-        {justLogged ? (
-          <span className="inline-flex items-center rounded-full bg-success-light px-2.5 py-1 text-xs font-medium text-success">
-            Toma registrada
-          </span>
-        ) : (
+        {/* Info */}
+        <div className="flex-1 min-w-0">
+          <div className="flex flex-wrap items-center gap-1.5">
+            <p className="truncate text-sm font-semibold text-brand-dark">{medication.name}</p>
+            {medication.takenToday === true && (
+              <span className="bg-success-light text-success text-xs font-semibold px-2 py-0.5 rounded-full">
+                Tomada hoy
+              </span>
+            )}
+          </div>
+          <p className="truncate text-xs text-gray-text">
+            {medication.dose} · {medication.frequency}
+          </p>
+          <div className="mt-1 flex flex-wrap items-center gap-1.5">
+            <span
+              className={cn(
+                'inline-block rounded-full px-2 py-0.5 text-xs font-medium',
+                medication.active
+                  ? 'bg-success-light text-success'
+                  : 'bg-gray-100 text-gray-text',
+              )}
+            >
+              {medication.active ? 'Activo' : 'Inactivo'}
+            </span>
+            <button
+              type="button"
+              onClick={() => onViewHistory(medication.id)}
+              className="text-xs text-brand-primary font-medium underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary rounded"
+            >
+              Ver historial
+            </button>
+          </div>
+        </div>
+
+        {/* Action */}
+        <div className="shrink-0">
           <Button
             variant="secondary"
             size="sm"
             isLoading={isLogging}
-            onClick={handleLog}
+            onClick={() => setSheetOpen(true)}
             aria-label={`Registrar toma de ${medication.name}`}
           >
             Registrar toma
           </Button>
-        )}
-      </div>
-    </li>
+        </div>
+      </li>
+
+      <LogIntakeSheet
+        open={sheetOpen}
+        medicationName={medication.name}
+        isSubmitting={isLogging}
+        onClose={() => setSheetOpen(false)}
+        onConfirm={handleConfirm}
+      />
+    </>
   );
 }
 
@@ -85,7 +112,8 @@ interface CaregiverMedicationsScreenProps {
   error: string | null;
   onReload: () => void;
   onAdd: () => void;
-  onLog: (id: string) => Promise<boolean>;
+  onLog: (id: string, notes?: string) => Promise<boolean>;
+  onViewHistory: (id: string) => void;
   loggingId: string | null;
   logError: string | null;
 }
@@ -102,6 +130,7 @@ export function CaregiverMedicationsScreen({
   onReload,
   onAdd,
   onLog,
+  onViewHistory,
   loggingId,
   logError,
 }: CaregiverMedicationsScreenProps) {
@@ -109,7 +138,7 @@ export function CaregiverMedicationsScreen({
 
   return (
     <>
-      <main className="flex flex-1 flex-col px-5 pt-6 pb-28">
+      <main className="flex flex-1 flex-col px-5 lg:px-10 pt-6 lg:pt-8 pb-[calc(7rem+env(safe-area-inset-bottom))] lg:pb-10 lg:max-w-4xl lg:mx-auto lg:w-full">
         <h1 className="text-2xl font-black tracking-tight text-brand-dark mb-6">
           Medicamentos
         </h1>
@@ -184,6 +213,7 @@ export function CaregiverMedicationsScreen({
                 key={med.id}
                 medication={med}
                 onLog={onLog}
+                onViewHistory={onViewHistory}
                 isLogging={loggingId === med.id}
               />
             ))}

@@ -107,7 +107,7 @@ export function CaregiverAppointmentsScreen({
 
   return (
     <>
-      <main className="flex flex-1 flex-col px-5 pt-6 pb-28">
+      <main className="flex flex-1 flex-col px-5 lg:px-10 pt-6 lg:pt-8 pb-[calc(7rem+env(safe-area-inset-bottom))] lg:pb-10 lg:max-w-4xl lg:mx-auto lg:w-full">
         <h1 className="text-2xl font-black tracking-tight text-brand-dark mb-6">
           Agenda
         </h1>

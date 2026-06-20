@@ -16,25 +16,23 @@ export default function SplashPage() {
   return (
     <main
       className="relative flex min-h-dvh w-full flex-col items-center justify-between overflow-hidden"
-      style={{ backgroundColor: 'var(--color-splash-bg)' }}
+      style={{ background: 'var(--gradient-splash)' }}
     >
       {/* Subtle decorative gradient blobs — aria-hidden, purely visual */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
+        {/* Teal glow top-right */}
         <div
-          className="absolute -top-24 -right-24 h-72 w-72 rounded-full opacity-10"
-          style={{
-            background:
-              'radial-gradient(circle, var(--color-brand-primary) 0%, transparent 70%)',
-          }}
+          className="absolute -top-32 -right-24 h-80 w-80 rounded-full opacity-25 blur-2xl"
+          style={{ background: 'radial-gradient(circle, var(--color-brand-primary) 0%, transparent 70%)' }}
         />
+        {/* Teal glow bottom-left */}
         <div
-          className="absolute -bottom-32 -left-32 h-96 w-96 rounded-full"
-          style={{
-            background:
-              'radial-gradient(circle, var(--color-brand-primary) 0%, transparent 70%)',
-            opacity: 0.08,
-          }}
+          className="absolute -bottom-40 -left-32 h-96 w-96 rounded-full opacity-20 blur-2xl"
+          style={{ background: 'radial-gradient(circle, var(--color-brand-primary-dark) 0%, transparent 70%)' }}
         />
+        {/* Concentric rings — subtle depth behind the hero */}
+        <div className="absolute left-1/2 top-1/2 h-[460px] w-[460px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/5" />
+        <div className="absolute left-1/2 top-1/2 h-[640px] w-[640px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/[0.03]" />
       </div>
 
       {/* Centered hero content */}

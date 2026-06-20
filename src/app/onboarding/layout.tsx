@@ -6,7 +6,7 @@ export default function OnboardingLayout({
   children: React.ReactNode;
 }) {
   return (
-    <MobileShell bg="bg-brand-dark">
+    <MobileShell bg="bg-brand-surface">
       {/* Subtle gradient overlay darkening toward the bottom */}
       <div className="relative flex min-h-dvh flex-col">
         <div

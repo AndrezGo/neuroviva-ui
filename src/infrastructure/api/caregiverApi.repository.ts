@@ -11,6 +11,7 @@ import type {
   CreateMedicationResult,
   LogMedicationInput,
   LogMedicationResult,
+  MedicationLog,
   Appointment,
   CreateAppointmentInput,
   CreateAppointmentResult,
@@ -92,6 +93,20 @@ export async function logMedication(
     token,
     body: JSON.stringify(input),
   });
+}
+
+/**
+ * Fetches the intake log history for a specific medication.
+ * Returns the raw server response; key mapping is handled in the hook.
+ */
+export async function getMedicationLogs(
+  token: string,
+  medicationId: string,
+): Promise<MedicationLog[]> {
+  return apiRequest<MedicationLog[]>(
+    `/api/v1/caregiver/medications/${medicationId}/logs`,
+    { method: 'GET', token },
+  );
 }
 
 // ── Appointments ─────────────────────────────────────────────────────────────

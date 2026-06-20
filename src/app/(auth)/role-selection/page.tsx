@@ -1,5 +1,6 @@
 'use client';
 
+import { useSearchParams } from 'next/navigation';
 import { HeartHandshake, Stethoscope, User } from 'lucide-react';
 import { RoleCard } from '@/presentation/ui/RoleCard';
 import { Button } from '@/presentation/ui/Button';
@@ -36,11 +37,16 @@ const roles: Array<{
   },
 ];
 
+const OAUTH_ERROR_MESSAGE =
+  'Hubo un problema al iniciar sesión con Google. Por favor intenta de nuevo.';
+
 export default function RoleSelectionPage() {
   const { selectedRole, selectRole, confirm, isLoading, error } = useRoleSelection();
+  const searchParams = useSearchParams();
+  const oauthError = searchParams.get('error') === 'oauth' ? OAUTH_ERROR_MESSAGE : null;
 
   return (
-    <div className="flex flex-1 flex-col px-6 py-8">
+    <div className="flex flex-1 flex-col px-6 py-8 lg:justify-center lg:py-12">
       {/* Header */}
       <div className="animate-fade-up" style={{ animationDelay: '0ms' }}>
         <h1 className="text-3xl font-black tracking-tight text-brand-dark">
@@ -50,6 +56,17 @@ export default function RoleSelectionPage() {
           Personalizamos la experiencia según tu rol. Podrás cambiarlo luego.
         </p>
       </div>
+
+      {/* OAuth error banner */}
+      {oauthError && (
+        <div
+          className="animate-fade-up mt-4 rounded-lg bg-red-50 px-4 py-3"
+          role="alert"
+          aria-live="polite"
+        >
+          <p className="text-sm text-red-700">{oauthError}</p>
+        </div>
+      )}
 
       {/* Role cards */}
       <div
@@ -76,7 +93,7 @@ export default function RoleSelectionPage() {
         ))}
       </div>
 
-      {/* Error message */}
+      {/* Role selection error message */}
       {error && (
         <p
           className="animate-fade-up mt-4 text-sm text-red-600 text-center"

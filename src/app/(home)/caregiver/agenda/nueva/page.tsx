@@ -4,6 +4,7 @@ import { useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCaregiverAppointments } from '@/application/caregiver/useCaregiverAppointments';
 import { AppointmentFormScreen } from '@/presentation/caregiver/AppointmentFormScreen';
+import { CaregiverShell } from '@/presentation/layout/CaregiverShell';
 import { routes } from '@/core/routing/routes';
 import type { AppointmentFormValues } from '@/application/caregiver/caregiverSchemas';
 
@@ -27,10 +28,12 @@ export default function CaregiverAgendaNuevaPage() {
   );
 
   return (
-    <AppointmentFormScreen
-      onSubmit={handleSubmit}
-      isSubmitting={isCreating}
-      submitError={createError}
-    />
+    <CaregiverShell activeTab="agenda">
+      <AppointmentFormScreen
+        onSubmit={handleSubmit}
+        isSubmitting={isCreating}
+        submitError={createError}
+      />
+    </CaregiverShell>
   );
 }

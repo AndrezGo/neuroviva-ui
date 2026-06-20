@@ -1,13 +1,14 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { createSupabaseBrowserClient } from '@/infrastructure/supabase/client.browser';
+import { supabaseAuthRepository } from '@/infrastructure/auth/supabaseAuth.repository';
 import {
   getMedications,
   createMedication as createMedicationRepo,
   logMedication as logMedicationRepo,
 } from '@/infrastructure/api/caregiverApi.repository';
 import { ApiError } from '@/infrastructure/api/apiClient';
+import { useToastStore } from '@/shared/store/useToastStore';
 import type { Medication, CreateMedicationInput } from '@/domain/caregiver/caregiver.types';
 
 export interface UseCaregiverMedicationsReturn {
@@ -19,7 +20,7 @@ export interface UseCaregiverMedicationsReturn {
   createMedication: (input: CreateMedicationInput) => Promise<boolean>;
   isCreating: boolean;
   createError: string | null;
-  logMedication: (id: string) => Promise<boolean>;
+  logMedication: (id: string, notes?: string) => Promise<boolean>;
   loggingId: string | null;
   logError: string | null;
 }
@@ -29,6 +30,8 @@ export interface UseCaregiverMedicationsReturn {
  * Mirrors the pattern established in useCaregiverHome.
  */
 export function useCaregiverMedications(): UseCaregiverMedicationsReturn {
+  const addToast = useToastStore((s) => s.addToast);
+
   const [medications, setMedications] = useState<Medication[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
@@ -53,12 +56,9 @@ export function useCaregiverMedications(): UseCaregiverMedicationsReturn {
     setMedications([]);
 
     try {
-      const supabase = createSupabaseBrowserClient();
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+      const token = await supabaseAuthRepository.getAccessToken();
 
-      if (!session) {
+      if (!token) {
         if (!active.current) return;
         setIsError(true);
         setError('Tu sesión expiró. Inicia sesión de nuevo.');
@@ -66,7 +66,7 @@ export function useCaregiverMedications(): UseCaregiverMedicationsReturn {
         return;
       }
 
-      const data = await getMedications(session.access_token);
+      const data = await getMedications(token);
 
       if (!active.current) return;
       setMedications(data);
@@ -99,12 +99,9 @@ export function useCaregiverMedications(): UseCaregiverMedicationsReturn {
       setCreateError(null);
 
       try {
-        const supabase = createSupabaseBrowserClient();
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
+        const token = await supabaseAuthRepository.getAccessToken();
 
-        if (!session) {
+        if (!token) {
           setCreateError('Tu sesión expiró. Inicia sesión de nuevo.');
           return false;
         }
@@ -119,7 +116,7 @@ export function useCaregiverMedications(): UseCaregiverMedicationsReturn {
           endDate: input.endDate || undefined,
         };
 
-        await createMedicationRepo(session.access_token, payload);
+        await createMedicationRepo(token, payload);
         reload();
         return true;
       } catch (err) {
@@ -136,34 +133,38 @@ export function useCaregiverMedications(): UseCaregiverMedicationsReturn {
     [reload],
   );
 
-  const logMedication = useCallback(async (id: string): Promise<boolean> => {
-    setLoggingId(id);
-    setLogError(null);
+  const logMedication = useCallback(
+    async (id: string, notes?: string): Promise<boolean> => {
+      setLoggingId(id);
+      setLogError(null);
 
-    try {
-      const supabase = createSupabaseBrowserClient();
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+      try {
+        const token = await supabaseAuthRepository.getAccessToken();
 
-      if (!session) {
-        setLogError('Tu sesión expiró. Inicia sesión de nuevo.');
+        if (!token) {
+          setLogError('Tu sesión expiró. Inicia sesión de nuevo.');
+          return false;
+        }
+
+        const body = notes?.trim() ? { notes: notes.trim() } : {};
+        await logMedicationRepo(token, id, body);
+        reload();
+        addToast({ type: 'success', message: 'Toma registrada correctamente' });
+        return true;
+      } catch (err) {
+        const message =
+          err instanceof ApiError
+            ? err.message
+            : 'Error al registrar la toma';
+        setLogError(message);
+        addToast({ type: 'error', message });
         return false;
+      } finally {
+        setLoggingId(null);
       }
-
-      await logMedicationRepo(session.access_token, id, {});
-      return true;
-    } catch (err) {
-      const message =
-        err instanceof ApiError
-          ? err.message
-          : 'No se pudo registrar la toma. Por favor intenta de nuevo.';
-      setLogError(message);
-      return false;
-    } finally {
-      setLoggingId(null);
-    }
-  }, []);
+    },
+    [reload, addToast],
+  );
 
   return {
     medications,

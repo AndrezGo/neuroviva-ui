@@ -10,7 +10,7 @@ import { routes } from '@/core/routing/routes';
  */
 export function ActionGrid() {
   return (
-    <div className="grid grid-cols-2 gap-3">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
       <ActionCard
         tone="teal"
         icon={<Pill className="h-5 w-5" aria-hidden="true" />}

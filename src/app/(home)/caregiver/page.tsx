@@ -4,10 +4,11 @@ import { useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCaregiverHome } from '@/application/caregiver/useCaregiverHome';
 import { useAuthStore } from '@/shared/store/useAuthStore';
+import { useSignOut } from '@/application/auth/useSignOut';
 import { getGreeting, getFirstName } from '@/shared/lib/greeting';
 import { CaregiverHomeScreen } from '@/presentation/caregiver/CaregiverHomeScreen';
+import { CaregiverShell } from '@/presentation/layout/CaregiverShell';
 import { routes } from '@/core/routing/routes';
-import { createSupabaseBrowserClient } from '@/infrastructure/supabase/client.browser';
 
 /**
  * Caregiver Inicio page — thin page component that wires hooks to the screen.
@@ -37,33 +38,28 @@ export default function CaregiverHomePage() {
     router.push(routes.caregiverPatientProfile());
   }, [router]);
 
-  const clearAuth = useAuthStore((s) => s.clear);
-
-  const onSignOut = useCallback(async () => {
-    const supabase = createSupabaseBrowserClient();
-    await supabase.auth.signOut();
-    clearAuth();
-    router.push(routes.login());
-  }, [clearAuth, router]);
+  const { signOut } = useSignOut();
 
   const onBellClick = useCallback(() => {
     // Notifications panel — stub for now
   }, []);
 
   return (
-    <CaregiverHomeScreen
-      greeting={greeting}
-      firstName={firstName}
-      patient={patient}
-      patientMissing={patientMissing}
-      today={today}
-      isLoading={isLoading}
-      isError={isError}
-      error={error}
-      onReload={reload}
-      onSignOut={onSignOut}
-      onBellClick={onBellClick}
-      onPatientClick={onPatientClick}
-    />
+    <CaregiverShell activeTab="home">
+      <CaregiverHomeScreen
+        greeting={greeting}
+        firstName={firstName}
+        patient={patient}
+        patientMissing={patientMissing}
+        today={today}
+        isLoading={isLoading}
+        isError={isError}
+        error={error}
+        onReload={reload}
+        onSignOut={signOut}
+        onBellClick={onBellClick}
+        onPatientClick={onPatientClick}
+      />
+    </CaregiverShell>
   );
 }

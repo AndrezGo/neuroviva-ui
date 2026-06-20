@@ -8,6 +8,7 @@ export const routes = {
   register: () => '/register' as const,
   forgotPassword: () => '/forgot-password' as const,
   roleSelection: () => '/role-selection' as const,
+  authComplete: () => '/auth-complete' as const,
   // Role-specific home screens (placeholders until dashboards are built)
   homeCaregiver: () => '/caregiver' as const,
   homeDoctor: () => '/doctor' as const,
@@ -18,6 +19,7 @@ export const routes = {
   caregiverHome: () => '/caregiver' as const,
   caregiverMeds: () => '/caregiver/medicinas' as const,
   caregiverMedsNew: () => '/caregiver/medicinas/nuevo' as const,
+  caregiverMedHistory: (id: string) => `/caregiver/medicinas/${id}/historial` as const,
   caregiverSymptoms: () => '/caregiver/sintomas' as const,
   caregiverAgenda: () => '/caregiver/agenda' as const,
   caregiverAgendaNew: () => '/caregiver/agenda/nueva' as const,
