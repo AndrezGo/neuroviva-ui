@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useCaregiverHome } from '@/application/caregiver/useCaregiverHome';
 import { useAuthStore } from '@/shared/store/useAuthStore';
 import { useSignOut } from '@/application/auth/useSignOut';
+import { useNotificationsStore } from '@/shared/store/useNotificationsStore';
 import { getGreeting, getFirstName } from '@/shared/lib/greeting';
 import { CaregiverHomeScreen } from '@/presentation/caregiver/CaregiverHomeScreen';
 import { CaregiverShell } from '@/presentation/layout/CaregiverShell';
@@ -13,6 +14,13 @@ import { routes } from '@/core/routing/routes';
 /**
  * Caregiver Inicio page — thin page component that wires hooks to the screen.
  * All data fetching is delegated to useCaregiverHome; UI is in CaregiverHomeScreen.
+ *
+ * Notifications:
+ *   - The single useNotifications() instance lives in CaregiverShell (which is
+ *     always mounted around this page). The store it populates is read here to
+ *     derive unreadCount for the mobile bell without triggering a second fetch.
+ *   - The mobile bell's onBellClick calls openPanel() from the same store so
+ *     both desktop and mobile bells open the identical panel rendered in the shell.
  */
 export default function CaregiverHomePage() {
   const router = useRouter();
@@ -34,6 +42,11 @@ export default function CaregiverHomePage() {
     reload,
   } = useCaregiverHome();
 
+  // ── Notifications (mobile) — read store, no extra fetch ────────────────────
+  const notifications = useNotificationsStore((s) => s.notifications);
+  const unreadCount = notifications.filter((n) => !n.isRead).length;
+  const openPanel = useNotificationsStore((s) => s.openPanel);
+
   const onPatientClick = useCallback(() => {
     router.push(routes.caregiverPatientProfile());
   }, [router]);
@@ -41,8 +54,8 @@ export default function CaregiverHomePage() {
   const { signOut } = useSignOut();
 
   const onBellClick = useCallback(() => {
-    // Notifications panel — stub for now
-  }, []);
+    openPanel();
+  }, [openPanel]);
 
   return (
     <CaregiverShell activeTab="home">
@@ -59,6 +72,7 @@ export default function CaregiverHomePage() {
         onSignOut={signOut}
         onBellClick={onBellClick}
         onPatientClick={onPatientClick}
+        unreadCount={unreadCount}
       />
     </CaregiverShell>
   );

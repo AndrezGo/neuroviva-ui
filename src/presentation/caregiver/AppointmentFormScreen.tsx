@@ -15,6 +15,13 @@ interface AppointmentFormScreenProps {
   submitError: string | null;
 }
 
+const APPOINTMENT_TYPES = [
+  { value: 'consulta', label: 'Consulta' },
+  { value: 'examen', label: 'Examen' },
+  { value: 'procedimiento', label: 'Procedimiento' },
+  { value: 'teleconsulta', label: 'Teleconsulta' },
+] as const;
+
 /**
  * Pure UI form screen for creating a new appointment.
  * Owns its own RHF instance; the page wires in onSubmit and navigation.
@@ -27,18 +34,20 @@ export function AppointmentFormScreen({
   const {
     register,
     handleSubmit,
+    watch,
+    setValue,
     formState: { errors },
   } = useForm<AppointmentFormValues>({
     resolver: zodResolver(appointmentSchema),
     defaultValues: {
       title: '',
-      type: '',
+      type: '' as AppointmentFormValues['type'],
       scheduledAt: '',
       notes: '',
     },
   });
 
-  // IDs for the native <textarea> a11y wiring
+  const selectedType = watch('type');
   const notesId = useId();
   const notesErrorId = `${notesId}-error`;
 
@@ -47,8 +56,7 @@ export function AppointmentFormScreen({
   });
 
   return (
-    <div className="flex flex-1 flex-col px-6 py-6">
-      {/* Back navigation */}
+    <div className="flex flex-1 flex-col px-5 lg:px-8 pt-6 lg:pt-8 pb-[calc(7rem+env(safe-area-inset-bottom))] lg:pb-10 lg:max-w-6xl lg:mx-auto lg:w-full">
       <div className="mb-6">
         <BackButton label="Volver a agenda" />
       </div>
@@ -57,11 +65,7 @@ export function AppointmentFormScreen({
         Nueva cita
       </h1>
 
-      <form
-        onSubmit={onFormSubmit}
-        noValidate
-        className="flex flex-col gap-5"
-      >
+      <form onSubmit={onFormSubmit} noValidate className="flex flex-col gap-5">
         <TextField
           label="Título"
           placeholder="Control Neurología"
@@ -70,13 +74,34 @@ export function AppointmentFormScreen({
           {...register('title')}
         />
 
-        <TextField
-          label="Tipo"
-          placeholder="Consulta"
-          autoComplete="off"
-          error={errors.type?.message}
-          {...register('type')}
-        />
+        {/* Type chip selector */}
+        <div className="flex flex-col gap-1.5">
+          <span className="text-sm font-semibold text-brand-dark tracking-tight">
+            Tipo de cita
+          </span>
+          <div className="grid grid-cols-2 gap-2">
+            {APPOINTMENT_TYPES.map(({ value, label }) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => setValue('type', value, { shouldValidate: true })}
+                className={cn(
+                  'rounded-2xl border px-4 py-3 text-sm font-semibold transition-all duration-150',
+                  selectedType === value
+                    ? 'border-brand-primary bg-brand-primary text-white'
+                    : 'border-gray-200 bg-white text-brand-dark hover:border-brand-primary/50 hover:bg-brand-primary-light',
+                )}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          {errors.type && (
+            <p role="alert" className="text-xs font-medium text-red-500">
+              {errors.type.message}
+            </p>
+          )}
+        </div>
 
         <TextField
           label="Fecha y hora"
@@ -119,7 +144,6 @@ export function AppointmentFormScreen({
           )}
         </div>
 
-        {/* Form-level error */}
         {submitError && (
           <div
             role="alert"

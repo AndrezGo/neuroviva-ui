@@ -24,7 +24,7 @@ export function CaregiverProfileScreen({
 
   return (
     <>
-      <main className="flex flex-1 flex-col items-center px-5 lg:px-10 pt-10 lg:pt-8 pb-[calc(7rem+env(safe-area-inset-bottom))] lg:pb-10 lg:max-w-4xl lg:mx-auto lg:w-full">
+      <main className="flex flex-1 flex-col items-center px-5 lg:px-8 pt-10 lg:pt-8 pb-[calc(7rem+env(safe-area-inset-bottom))] lg:pb-10 lg:max-w-6xl lg:mx-auto lg:w-full">
         <div
           className="flex h-20 w-20 items-center justify-center rounded-full bg-brand-primary text-3xl font-bold text-white"
           aria-hidden="true"

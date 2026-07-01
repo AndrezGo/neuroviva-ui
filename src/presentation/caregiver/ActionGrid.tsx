@@ -10,17 +10,17 @@ import { routes } from '@/core/routing/routes';
  */
 export function ActionGrid() {
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+    <div className="grid grid-cols-2 gap-3 lg:gap-4">
       <ActionCard
         tone="teal"
-        icon={<Pill className="h-5 w-5" aria-hidden="true" />}
+        icon={<Pill className="h-6 w-6" aria-hidden="true" />}
         title="Registrar toma"
         subtitle="Medicamentos"
         href={routes.caregiverMeds()}
       />
       <ActionCard
         tone="coral"
-        icon={<Activity className="h-5 w-5" aria-hidden="true" />}
+        icon={<Activity className="h-6 w-6" aria-hidden="true" />}
         title="Anotar síntoma"
         subtitle="Cómo estuvo"
         href={routes.caregiverSymptoms()}
@@ -28,14 +28,14 @@ export function ActionGrid() {
       {/* Mood card — points to symptoms until a dedicated mood route exists */}
       <ActionCard
         tone="purple"
-        icon={<Heart className="h-5 w-5" aria-hidden="true" />}
+        icon={<Heart className="h-6 w-6" aria-hidden="true" />}
         title="Cómo se siente"
         subtitle="Ánimo y notas"
         href={routes.caregiverSymptoms()}
       />
       <ActionCard
         tone="blue"
-        icon={<Calendar className="h-5 w-5" aria-hidden="true" />}
+        icon={<Calendar className="h-6 w-6" aria-hidden="true" />}
         title="Ver agenda"
         subtitle="Citas y exámenes"
         href={routes.caregiverAgenda()}

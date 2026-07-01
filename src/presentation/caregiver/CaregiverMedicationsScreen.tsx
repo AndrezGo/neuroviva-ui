@@ -138,8 +138,8 @@ export function CaregiverMedicationsScreen({
 
   return (
     <>
-      <main className="flex flex-1 flex-col px-5 lg:px-10 pt-6 lg:pt-8 pb-[calc(7rem+env(safe-area-inset-bottom))] lg:pb-10 lg:max-w-4xl lg:mx-auto lg:w-full">
-        <h1 className="text-2xl font-black tracking-tight text-brand-dark mb-6">
+      <main className="flex flex-1 flex-col px-5 lg:px-8 pt-6 lg:pt-8 pb-[calc(7rem+env(safe-area-inset-bottom))] lg:pb-10 lg:max-w-6xl lg:mx-auto lg:w-full">
+        <h1 className="text-2xl lg:text-3xl font-black tracking-tight text-brand-dark mb-6">
           Medicamentos
         </h1>
 
@@ -207,7 +207,7 @@ export function CaregiverMedicationsScreen({
 
         {/* Populated list */}
         {!isLoading && !isEmpty && (
-          <ul aria-label="Lista de medicamentos" className="mb-4">
+          <ul aria-label="Lista de medicamentos" className="mb-4 rounded-2xl border border-gray-200 shadow-sm px-4">
             {medications.map((med) => (
               <MedicationListItem
                 key={med.id}

@@ -8,7 +8,10 @@ import type {
 } from '@/domain/onboarding/onboarding.types';
 
 interface CaregiverOnboardingState {
+  documentNumber: string;
+  patientFound: boolean;
   patientName: string;
+  patientDateOfBirth: string | null;
   relation: string | null;
   conditions: CaregiverCondition[];
   reminders: ReminderPreferences;
@@ -16,7 +19,10 @@ interface CaregiverOnboardingState {
 }
 
 interface CaregiverOnboardingActions {
+  setDocumentNumber: (doc: string) => void;
+  setPatientFound: (found: boolean) => void;
   setPatientName: (name: string) => void;
+  setPatientDateOfBirth: (dob: string | null) => void;
   setRelation: (relation: string | null) => void;
   setConditions: (conditions: CaregiverCondition[]) => void;
   setReminders: (partial: Partial<ReminderPreferences>) => void;
@@ -27,7 +33,10 @@ interface CaregiverOnboardingActions {
 type CaregiverOnboardingStore = CaregiverOnboardingState & CaregiverOnboardingActions;
 
 const initialState: CaregiverOnboardingState = {
+  documentNumber: '',
+  patientFound: false,
   patientName: '',
+  patientDateOfBirth: null,
   relation: null,
   conditions: [],
   reminders: {
@@ -42,7 +51,13 @@ export const useCaregiverOnboardingStore = create<CaregiverOnboardingStore>()(
     (set) => ({
       ...initialState,
 
+      setDocumentNumber: (documentNumber) => set({ documentNumber }),
+
+      setPatientFound: (patientFound) => set({ patientFound }),
+
       setPatientName: (name) => set({ patientName: name }),
+
+      setPatientDateOfBirth: (dob) => set({ patientDateOfBirth: dob }),
 
       setRelation: (relation) => set({ relation }),
 

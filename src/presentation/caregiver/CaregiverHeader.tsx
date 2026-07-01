@@ -11,6 +11,7 @@ interface CaregiverHeaderProps {
   patientMissing: boolean;
   onBellClick?: () => void;
   onPatientClick?: () => void;
+  unreadCount?: number;
 }
 
 /**
@@ -24,6 +25,7 @@ export function CaregiverHeader({
   patientMissing,
   onBellClick,
   onPatientClick,
+  unreadCount = 0,
 }: CaregiverHeaderProps) {
   const patientInitial = patient?.name ? patient.name.charAt(0).toUpperCase() : '?';
 
@@ -66,10 +68,12 @@ export function CaregiverHeader({
         >
           <Bell className="h-5 w-5" aria-hidden="true" />
           {/* Notification indicator dot */}
-          <span
-            className="absolute right-2 top-2 h-2 w-2 rounded-full bg-warning"
-            aria-hidden="true"
-          />
+          {unreadCount > 0 && (
+            <span
+              className="absolute right-2 top-2 h-2 w-2 rounded-full bg-warning"
+              aria-hidden="true"
+            />
+          )}
         </button>
       </div>
 
@@ -95,7 +99,14 @@ export function CaregiverHeader({
             <div className="flex-1 overflow-hidden">
               <p className="truncate text-sm font-bold text-white">{patient.name}</p>
               <p className="truncate text-xs text-gray-300">
-                {patient.age} años · {patient.condition} {patient.conditionStage}
+                {[
+                  patient.age > 0 ? `${patient.age} años` : null,
+                  patient.condition
+                    ? `${patient.condition}${patient.conditionStage ? ` ${patient.conditionStage}` : ''}`
+                    : null,
+                ]
+                  .filter(Boolean)
+                  .join(' · ')}
               </p>
             </div>
 

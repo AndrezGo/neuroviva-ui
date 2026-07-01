@@ -24,10 +24,9 @@ export const appointmentSchema = z.object({
     .string()
     .min(1, 'El título es obligatorio')
     .max(120, 'El título no puede superar 120 caracteres'),
-  type: z
-    .string()
-    .min(1, 'El tipo es obligatorio')
-    .max(60, 'El tipo no puede superar 60 caracteres'),
+  type: z.enum(['consulta', 'examen', 'procedimiento', 'teleconsulta'], {
+    error: 'Selecciona el tipo de cita',
+  }),
   scheduledAt: z
     .string()
     .min(1, 'La fecha y hora son obligatorias'),

@@ -3,9 +3,12 @@
 import { useCallback } from 'react';
 import { useAuthStore } from '@/shared/store/useAuthStore';
 import { useSignOut } from '@/application/auth/useSignOut';
+import { useNotifications } from '@/application/caregiver/useNotifications';
+import { useNotificationsStore } from '@/shared/store/useNotificationsStore';
 import { getFirstName } from '@/shared/lib/greeting';
 import { CaregiverDesktopSidebar } from './CaregiverDesktopSidebar';
 import { CaregiverDesktopHeader } from './CaregiverDesktopHeader';
+import { NotificationsPanel } from '@/presentation/caregiver/NotificationsPanel';
 import type { CaregiverTab } from '@/presentation/caregiver/CaregiverTabBar';
 
 interface CaregiverShellProps {
@@ -24,6 +27,13 @@ interface CaregiverShellProps {
  *                 full-width scrollable content area offset by the chrome.
  *                 The mobile tab-bar / header chrome is hidden via lg:hidden
  *                 inside each screen component.
+ *
+ * Notifications:
+ *   useNotifications() is called HERE (single mount) which populates
+ *   useNotificationsStore. Both the desktop header (via unreadCount prop) and
+ *   the mobile bell (via page.tsx reading the same store) share one source of
+ *   truth. The panel open/close state also lives in the store so any part of
+ *   the tree can open it without prop drilling.
  */
 export function CaregiverShell({ activeTab, children }: CaregiverShellProps) {
   const backendUser = useAuthStore((s) => s.backendUser);
@@ -34,9 +44,17 @@ export function CaregiverShell({ activeTab, children }: CaregiverShellProps) {
 
   const { signOut, isLoading: isSigningOut } = useSignOut();
 
+  // ── Notifications — single fetch owner ─────────────────────────────────────
+  const { notifications, unreadCount, isLoading: notificationsLoading, markAllRead } =
+    useNotifications();
+
+  const panelOpen = useNotificationsStore((s) => s.panelOpen);
+  const openPanel = useNotificationsStore((s) => s.openPanel);
+  const closePanel = useNotificationsStore((s) => s.closePanel);
+
   const handleBellClick = useCallback(() => {
-    // Notifications panel — stub for now
-  }, []);
+    openPanel();
+  }, [openPanel]);
 
   return (
     <>
@@ -48,6 +66,7 @@ export function CaregiverShell({ activeTab, children }: CaregiverShellProps) {
         onSignOut={signOut}
         isSigningOut={isSigningOut}
         onBellClick={handleBellClick}
+        unreadCount={unreadCount}
       />
 
       {/* Outer background layer */}
@@ -57,6 +76,15 @@ export function CaregiverShell({ activeTab, children }: CaregiverShellProps) {
           {children}
         </div>
       </div>
+
+      {/* Notifications panel — portal-rendered, shared by desktop + mobile */}
+      <NotificationsPanel
+        open={panelOpen}
+        onClose={closePanel}
+        notifications={notifications}
+        isLoading={notificationsLoading}
+        onMarkAllRead={markAllRead}
+      />
     </>
   );
 }

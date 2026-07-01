@@ -10,6 +10,7 @@ interface CaregiverDesktopHeaderProps {
   onSignOut: () => void;
   isSigningOut?: boolean;
   onBellClick?: () => void;
+  unreadCount: number;
 }
 
 /**
@@ -23,6 +24,7 @@ export function CaregiverDesktopHeader({
   onSignOut,
   isSigningOut,
   onBellClick,
+  unreadCount,
 }: CaregiverDesktopHeaderProps) {
   return (
     <header
@@ -46,10 +48,12 @@ export function CaregiverDesktopHeader({
         >
           <Bell className="h-5 w-5" aria-hidden="true" />
           {/* Notification indicator dot */}
-          <span
-            className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-warning"
-            aria-hidden="true"
-          />
+          {unreadCount > 0 && (
+            <span
+              className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-warning"
+              aria-hidden="true"
+            />
+          )}
         </button>
 
         {/* Account dropdown */}

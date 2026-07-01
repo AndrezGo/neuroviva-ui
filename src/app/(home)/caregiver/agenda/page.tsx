@@ -19,6 +19,7 @@ export default function CaregiverAgendaPage() {
     isError,
     error,
     reload,
+    cancelAppointment,
   } = useCaregiverAppointments();
 
   const handleAdd = useCallback(() => {
@@ -34,6 +35,7 @@ export default function CaregiverAgendaPage() {
         error={error}
         onReload={reload}
         onAdd={handleAdd}
+        onCancel={cancelAppointment}
       />
     </CaregiverShell>
   );

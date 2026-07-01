@@ -1,18 +1,23 @@
 'use client';
 
+import { useState } from 'react';
 import { Calendar } from 'lucide-react';
 import { Button } from '@/presentation/ui/Button';
 import { CaregiverTabBar } from './CaregiverTabBar';
 import { cn } from '@/shared/lib/cn';
 import type { Appointment } from '@/domain/caregiver/caregiver.types';
 
-/**
- * Formats an ISO 8601 date-time string as "Vie 14 Jun · 10:30 AM" (es-CO locale).
- * Local helper — intentionally not imported from TodayAppointmentItem.
- */
+// ── Module-scope helpers ──────────────────────────────────────────────────────
+
+const TYPE_LABELS: Record<string, string> = {
+  consultation: 'Consulta',
+  exam: 'Examen',
+  procedure: 'Procedimiento',
+  teleconsultation: 'Teleconsulta',
+};
+
 function formatAppointmentDateTime(iso: string): string {
   const date = new Date(iso);
-
   const weekday = new Intl.DateTimeFormat('es-CO', { weekday: 'short' }).format(date);
   const day = new Intl.DateTimeFormat('es-CO', { day: 'numeric' }).format(date);
   const month = new Intl.DateTimeFormat('es-CO', { month: 'short' }).format(date);
@@ -21,9 +26,7 @@ function formatAppointmentDateTime(iso: string): string {
     minute: '2-digit',
     hour12: true,
   }).format(date);
-
   const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1).replace('.', '');
-
   return `${cap(weekday)} ${day} ${cap(month)} · ${time}`;
 }
 
@@ -31,51 +34,94 @@ function formatAppointmentDateTime(iso: string): string {
 
 interface AppointmentListItemProps {
   appointment: Appointment;
+  cancellingId: string | null;
+  onCancelStart: (id: string) => void;
+  onCancelConfirm: (id: string) => void;
+  onCancelAbort: () => void;
 }
 
-function AppointmentListItem({ appointment }: AppointmentListItemProps) {
-  const { title, type, scheduledAt, status } = appointment;
+function AppointmentListItem({
+  appointment,
+  cancellingId,
+  onCancelStart,
+  onCancelConfirm,
+  onCancelAbort,
+}: AppointmentListItemProps) {
+  const { id, title, type, scheduledAt, status } = appointment;
+  const canCancel = status === 'scheduled' || status === 'confirmed';
+  const isConfirming = cancellingId === id;
 
   const statusLabel =
-    status === 'completed'
-      ? 'Completada'
-      : status === 'cancelled'
-        ? 'Cancelada'
-        : 'Pendiente';
+    status === 'completed' ? 'Completada' :
+    status === 'cancelled' ? 'Cancelada' :
+    status === 'confirmed' ? 'Confirmada' :
+    'Programada';
 
   const statusClass =
-    status === 'completed'
-      ? 'bg-success-light text-success'
-      : status === 'cancelled'
-        ? 'bg-error-light text-error'
-        : 'bg-warning-light text-warning';
+    status === 'completed' ? 'bg-success-light text-success' :
+    status === 'cancelled' ? 'bg-error-light text-error' :
+    status === 'confirmed' ? 'bg-brand-primary-light text-brand-primary' :
+    'bg-warning-light text-warning';
 
   return (
-    <li className="flex items-start gap-3 py-4 border-b border-gray-100 last:border-b-0">
-      {/* Icon */}
-      <div
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-role-professional-light text-role-professional"
-        aria-hidden="true"
-      >
-        <Calendar className="h-5 w-5" />
-      </div>
+    <li className="flex flex-col py-4 border-b border-gray-100 last:border-b-0">
+      <div className="flex items-start gap-3">
+        {/* Icon */}
+        <div
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-role-professional-light text-role-professional"
+          aria-hidden="true"
+        >
+          <Calendar className="h-5 w-5" />
+        </div>
 
-      {/* Info */}
-      <div className="flex-1 min-w-0">
-        <p className="truncate text-sm font-semibold text-brand-dark">{title}</p>
-        <p className="truncate text-xs text-gray-text">{formatAppointmentDateTime(scheduledAt)}</p>
-
-        <div className="mt-1.5 flex flex-wrap gap-1.5">
-          {/* Type chip */}
-          <span className="inline-block rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-text">
-            {type}
-          </span>
-          {/* Status badge */}
-          <span className={cn('inline-block rounded-full px-2 py-0.5 text-xs font-medium', statusClass)}>
-            {statusLabel}
-          </span>
+        {/* Info */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between gap-2">
+            <p className="truncate text-sm font-semibold text-brand-dark">{title}</p>
+            {canCancel && !isConfirming && (
+              <button
+                type="button"
+                onClick={() => onCancelStart(id)}
+                className="shrink-0 text-xs font-medium text-gray-text underline-offset-2 hover:text-error hover:underline transition-colors"
+              >
+                Cancelar
+              </button>
+            )}
+          </div>
+          <p className="truncate text-xs text-gray-text mt-0.5">
+            {formatAppointmentDateTime(scheduledAt)}
+          </p>
+          <div className="mt-1.5 flex flex-wrap gap-1.5">
+            <span className="inline-block rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-text">
+              {TYPE_LABELS[type] ?? type}
+            </span>
+            <span className={cn('inline-block rounded-full px-2 py-0.5 text-xs font-medium', statusClass)}>
+              {statusLabel}
+            </span>
+          </div>
         </div>
       </div>
+
+      {/* Inline cancel confirmation */}
+      {isConfirming && (
+        <div className="mt-3 flex items-center gap-2 pl-[52px]">
+          <p className="flex-1 text-xs text-gray-text">¿Cancelar esta cita?</p>
+          <button
+            type="button"
+            onClick={() => onCancelConfirm(id)}
+            className="rounded-xl bg-error px-3 py-1.5 text-xs font-semibold text-white active:opacity-80"
+          >
+            Sí, cancelar
+          </button>
+          <button
+            type="button"
+            onClick={onCancelAbort}
+            className="rounded-xl border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-brand-dark active:bg-gray-50"
+          >
+            No
+          </button>
+        </div>
+      )}
     </li>
   );
 }
@@ -89,11 +135,12 @@ interface CaregiverAppointmentsScreenProps {
   error: string | null;
   onReload: () => void;
   onAdd: () => void;
+  onCancel: (id: string) => Promise<boolean>;
 }
 
 /**
  * Pure UI screen for the Caregiver Agenda tab.
- * All data and handlers come from props; this component holds no hooks.
+ * All data and handlers come from props; this component holds no API hooks.
  */
 export function CaregiverAppointmentsScreen({
   appointments,
@@ -102,13 +149,23 @@ export function CaregiverAppointmentsScreen({
   error,
   onReload,
   onAdd,
+  onCancel,
 }: CaregiverAppointmentsScreenProps) {
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
+
   const isEmpty = !isLoading && !isError && appointments.length === 0;
+
+  const handleCancelStart = (id: string) => setCancellingId(id);
+  const handleCancelAbort = () => setCancellingId(null);
+  const handleCancelConfirm = async (id: string) => {
+    const ok = await onCancel(id);
+    if (ok) setCancellingId(null);
+  };
 
   return (
     <>
-      <main className="flex flex-1 flex-col px-5 lg:px-10 pt-6 lg:pt-8 pb-[calc(7rem+env(safe-area-inset-bottom))] lg:pb-10 lg:max-w-4xl lg:mx-auto lg:w-full">
-        <h1 className="text-2xl font-black tracking-tight text-brand-dark mb-6">
+      <main className="flex flex-1 flex-col px-5 lg:px-8 pt-6 lg:pt-8 pb-[calc(7rem+env(safe-area-inset-bottom))] lg:pb-10 lg:max-w-6xl lg:mx-auto lg:w-full">
+        <h1 className="text-2xl lg:text-3xl font-black tracking-tight text-brand-dark mb-6">
           Agenda
         </h1>
 
@@ -166,9 +223,16 @@ export function CaregiverAppointmentsScreen({
 
         {/* Populated list */}
         {!isLoading && !isEmpty && (
-          <ul aria-label="Lista de citas" className="mb-4">
+          <ul aria-label="Lista de citas" className="mb-4 rounded-2xl border border-gray-200 shadow-sm px-4">
             {appointments.map((appt) => (
-              <AppointmentListItem key={appt.id} appointment={appt} />
+              <AppointmentListItem
+                key={appt.id}
+                appointment={appt}
+                cancellingId={cancellingId}
+                onCancelStart={handleCancelStart}
+                onCancelConfirm={handleCancelConfirm}
+                onCancelAbort={handleCancelAbort}
+              />
             ))}
           </ul>
         )}

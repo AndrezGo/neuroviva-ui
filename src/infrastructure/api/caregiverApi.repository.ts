@@ -15,6 +15,12 @@ import type {
   Appointment,
   CreateAppointmentInput,
   CreateAppointmentResult,
+  Symptom,
+  CreateSymptomPayload,
+  HistoryEvent,
+  CreateHistoryNoteInput,
+  CreateHistoryNoteResult,
+  AppNotification,
 } from '@/domain/caregiver/caregiver.types';
 
 /**
@@ -132,5 +138,83 @@ export async function createAppointment(
     method: 'POST',
     token,
     body: JSON.stringify(input),
+  });
+}
+
+/**
+ * Cancels a scheduled or confirmed appointment.
+ * Returns 204 No Content on success.
+ */
+export async function cancelAppointment(token: string, id: string): Promise<void> {
+  await apiRequest<void>(`/api/v1/caregiver/appointments/${id}/cancel`, {
+    method: 'PATCH',
+    token,
+  });
+}
+
+// ── Symptoms ──────────────────────────────────────────────────────────────────
+
+export async function listSymptoms(token: string): Promise<Symptom[]> {
+  return apiRequest<Symptom[]>('/api/v1/caregiver/symptoms', {
+    method: 'GET',
+    token,
+  });
+}
+
+export async function registerSymptom(
+  token: string,
+  payload: CreateSymptomPayload,
+): Promise<Symptom> {
+  return apiRequest<Symptom>('/api/v1/caregiver/symptoms', {
+    method: 'POST',
+    token,
+    body: JSON.stringify(payload),
+  });
+}
+
+// ── Clinical History ──────────────────────────────────────────────────────────
+
+export async function getClinicalHistory(token: string): Promise<HistoryEvent[]> {
+  return apiRequest<HistoryEvent[]>('/api/v1/caregiver/history', { method: 'GET', token });
+}
+
+export async function addHistoryNote(
+  token: string,
+  input: CreateHistoryNoteInput,
+): Promise<CreateHistoryNoteResult> {
+  return apiRequest<CreateHistoryNoteResult>('/api/v1/caregiver/history', {
+    method: 'POST',
+    token,
+    body: JSON.stringify(input),
+  });
+}
+
+// ── Notifications ─────────────────────────────────────────────────────────────
+
+export async function getNotifications(token: string): Promise<AppNotification[]> {
+  return apiRequest<AppNotification[]>('/api/v1/caregiver/notifications', {
+    method: 'GET',
+    token,
+  });
+}
+
+export async function markNotificationRead(token: string, id: string): Promise<void> {
+  await apiRequest<void>(`/api/v1/caregiver/notifications/${id}/read`, {
+    method: 'PATCH',
+    token,
+  });
+}
+
+// ── Doctor assignment ─────────────────────────────────────────────────────────
+
+/**
+ * Assigns a doctor to the caregiver's linked patient by doctor ID.
+ * Returns 204 No Content on success.
+ */
+export async function assignDoctorToPatient(token: string, doctorId: string): Promise<void> {
+  await apiRequest<void>('/api/v1/caregiver/patient/doctor', {
+    method: 'POST',
+    token,
+    body: JSON.stringify({ doctorId }),
   });
 }

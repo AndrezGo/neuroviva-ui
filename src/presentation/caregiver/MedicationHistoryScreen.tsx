@@ -26,7 +26,7 @@ export function MedicationHistoryScreen({
 }: MedicationHistoryScreenProps) {
   return (
     <>
-      <main className="flex flex-1 flex-col px-5 lg:px-10 pt-6 lg:pt-8 pb-[calc(7rem+env(safe-area-inset-bottom))] lg:pb-10 lg:max-w-4xl lg:mx-auto lg:w-full">
+      <main className="flex flex-1 flex-col px-5 lg:px-8 pt-6 lg:pt-8 pb-[calc(7rem+env(safe-area-inset-bottom))] lg:pb-10 lg:max-w-6xl lg:mx-auto lg:w-full">
         {/* Back button */}
         <button
           type="button"
@@ -37,7 +37,7 @@ export function MedicationHistoryScreen({
           Volver
         </button>
 
-        <h1 className="text-2xl font-black tracking-tight text-brand-dark mb-1">
+        <h1 className="text-2xl lg:text-3xl font-black tracking-tight text-brand-dark mb-1">
           Historial de tomas
         </h1>
         {medicationName && (
@@ -94,7 +94,7 @@ export function MedicationHistoryScreen({
 
         {/* Log list */}
         {!isLoading && !isError && logs.length > 0 && (
-          <div className="divide-y divide-gray-100">
+          <div className="rounded-2xl border border-gray-200 shadow-sm px-4 divide-y divide-gray-100">
             {logs.map((log) => {
               const date = new Date(log.takenAt);
               const dateStr = new Intl.DateTimeFormat('es-CO', {

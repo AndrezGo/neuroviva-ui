@@ -1,12 +1,19 @@
-import { User } from 'lucide-react';
-import { RoleHomePlaceholder } from '@/presentation/home/RoleHomePlaceholder';
+'use client';
 
-export default function PatientHomePage() {
-  return (
-    <RoleHomePlaceholder
-      icon={<User className="h-7 w-7" aria-hidden="true" />}
-      title="Paciente"
-      subtitle="Tu espacio de bienestar, recursos y tranquilidad está casi listo."
-    />
-  );
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { routes } from '@/core/routing/routes';
+
+/**
+ * Legacy patient placeholder — redirects to the new patient home at /paciente.
+ * Kept to avoid breaking any existing links or bookmarks.
+ */
+export default function LegacyPatientPage() {
+  const router = useRouter();
+
+  useEffect(() => {
+    router.replace(routes.patientHome());
+  }, [router]);
+
+  return null;
 }

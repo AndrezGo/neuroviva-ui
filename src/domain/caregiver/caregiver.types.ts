@@ -7,8 +7,9 @@ export interface CaregiverPatient {
   id: string;
   name: string;
   age: number;
+  dateOfBirth?: string | null;
   condition: string;
-  conditionStage: string;
+  conditionStage: string | null;
 }
 
 export type MedicationStatus = 'pending' | 'taken' | 'skipped';
@@ -35,8 +36,10 @@ export interface CaregiverToday {
 }
 
 export interface CaregiverOnboardingPayload {
+  documentNumber: string;
   patientName: string;
-  patientAge?: number;
+  patientAge?: number | null;
+  patientDateOfBirth?: string | null;
   relation: string;
   condition: string;
 }
@@ -104,4 +107,62 @@ export interface MedicationLog {
   id: string;
   takenAt: string; // ISO 8601
   notes: string | null;
+}
+
+// ── Symptoms ─────────────────────────────────────────────────────────────────
+
+export interface Symptom {
+  id: string;
+  type: string;
+  intensity: number;
+  description?: string | null;
+  loggedAt: string; // ISO 8601
+}
+
+export interface CreateSymptomPayload {
+  type: string;
+  intensity: number;
+  description?: string | null;
+  loggedAt?: string | null;
+}
+
+// ── Notifications ────────────────────────────────────────────────────────────
+
+export interface AppNotification {
+  id: string;
+  title: string;
+  body: string;
+  isRead: boolean;
+  createdAt: string;
+}
+
+// ── Clinical History ────────────────────────────────────────────────────────
+
+export interface HistoryEvent {
+  id: string;
+  type: string; // "symptom" | "consultation" | "exam" | "procedure" | "teleconsultation" | "medication" | "note" | "other"
+  title: string;
+  description?: string | null;
+  eventDate: string; // ISO 8601
+  status?: string | null; // present only for appointment-type events
+}
+
+export interface CreateHistoryNoteInput {
+  eventType: string; // "consultation" | "exam" | "note" | "other"
+  description: string;
+  eventDate?: string | null; // optional; backend uses "now" if omitted
+}
+
+export interface CreateHistoryNoteResult {
+  recordId: string;
+}
+
+// ── Notifications ────────────────────────────────────────────────────────────
+
+export interface AppNotification {
+  id: string;
+  title: string;
+  body: string;
+  isRead: boolean;
+  createdAt: string;
 }

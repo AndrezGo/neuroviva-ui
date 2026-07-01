@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { cn } from '@/shared/lib/cn';
@@ -13,6 +13,11 @@ interface SheetProps {
 
 export function Sheet({ open, onClose, title, children }: SheetProps) {
   const panelRef = useRef<HTMLDivElement>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Close on Escape
   useEffect(() => {
@@ -29,7 +34,7 @@ export function Sheet({ open, onClose, title, children }: SheetProps) {
     if (open) panelRef.current?.focus();
   }, [open]);
 
-  if (typeof document === 'undefined') return null;
+  if (!mounted) return null;
 
   return createPortal(
     <>

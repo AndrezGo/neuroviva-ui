@@ -5,6 +5,7 @@ import { supabaseAuthRepository } from '@/infrastructure/auth/supabaseAuth.repos
 import {
   getAppointments,
   createAppointment as createAppointmentRepo,
+  cancelAppointment as cancelAppointmentRepo,
 } from '@/infrastructure/api/caregiverApi.repository';
 import { ApiError } from '@/infrastructure/api/apiClient';
 import type { Appointment, CreateAppointmentInput } from '@/domain/caregiver/caregiver.types';
@@ -19,6 +20,9 @@ export interface UseCaregiverAppointmentsReturn {
   createAppointment: (input: AppointmentFormValues) => Promise<boolean>;
   isCreating: boolean;
   createError: string | null;
+  cancelAppointment: (id: string) => Promise<boolean>;
+  isCancelling: boolean;
+  cancelError: string | null;
 }
 
 /**
@@ -33,6 +37,9 @@ export function useCaregiverAppointments(): UseCaregiverAppointmentsReturn {
 
   const [isCreating, setIsCreating] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
+
+  const [isCancelling, setIsCancelling] = useState(false);
+  const [cancelError, setCancelError] = useState<string | null>(null);
 
   const [reloadKey, setReloadKey] = useState(0);
 
@@ -122,6 +129,36 @@ export function useCaregiverAppointments(): UseCaregiverAppointmentsReturn {
     [reload],
   );
 
+  const cancelAppointment = useCallback(
+    async (id: string): Promise<boolean> => {
+      setIsCancelling(true);
+      setCancelError(null);
+
+      try {
+        const token = await supabaseAuthRepository.getAccessToken();
+
+        if (!token) {
+          setCancelError('Tu sesión expiró. Inicia sesión de nuevo.');
+          return false;
+        }
+
+        await cancelAppointmentRepo(token, id);
+        reload();
+        return true;
+      } catch (err) {
+        const message =
+          err instanceof ApiError
+            ? err.message
+            : 'No se pudo cancelar la cita. Por favor intenta de nuevo.';
+        setCancelError(message);
+        return false;
+      } finally {
+        setIsCancelling(false);
+      }
+    },
+    [reload],
+  );
+
   return {
     appointments,
     isLoading,
@@ -131,5 +168,8 @@ export function useCaregiverAppointments(): UseCaregiverAppointmentsReturn {
     createAppointment,
     isCreating,
     createError,
+    cancelAppointment,
+    isCancelling,
+    cancelError,
   };
 }

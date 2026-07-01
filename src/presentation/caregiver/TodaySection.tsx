@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ClipboardList } from 'lucide-react';
+import { CheckCircle2 } from 'lucide-react';
 import { TodayMedicationItem } from './TodayMedicationItem';
 import { TodayAppointmentItem } from './TodayAppointmentItem';
 import { routes } from '@/core/routing/routes';
@@ -29,13 +29,13 @@ export function TodaySection({ today, isLoading }: TodaySectionProps) {
       <div className="mb-3 flex items-center justify-between">
         <h2
           id="today-heading"
-          className="text-base font-bold text-brand-dark"
+          className="text-xs font-semibold uppercase tracking-wider text-gray-400"
         >
           Pendiente de hoy
         </h2>
         <Link
           href={routes.caregiverAgenda()}
-          className="text-sm font-medium text-brand-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-1 rounded"
+          className="text-xs font-semibold uppercase tracking-wider text-brand-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-1 rounded"
         >
           Ver todo
         </Link>
@@ -58,12 +58,20 @@ export function TodaySection({ today, isLoading }: TodaySectionProps) {
 
       {/* Empty state */}
       {isEmpty && (
-        <div className="flex flex-col items-center gap-2 py-8 text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 text-gray-400">
-            <ClipboardList className="h-6 w-6" aria-hidden="true" />
+        <div className="flex flex-col items-center gap-3 rounded-2xl border border-gray-100 bg-gray-50 py-8 px-4 text-center">
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-brand-primary-light text-brand-primary">
+            <CheckCircle2 className="h-7 w-7" aria-hidden="true" />
           </div>
-          <p className="text-sm font-medium text-gray-text">Nada pendiente por ahora</p>
-          <p className="text-xs text-gray-400">Disfruta el día tranquilo</p>
+          <div>
+            <p className="text-sm font-semibold text-brand-dark">Todo al día</p>
+            <p className="mt-1 text-xs text-gray-text">No tienes tareas pendientes para hoy</p>
+          </div>
+          <Link
+            href={routes.caregiverAgenda()}
+            className="mt-1 text-xs font-medium text-brand-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-1 rounded"
+          >
+            Agregar recordatorio en la agenda →
+          </Link>
         </div>
       )}
 

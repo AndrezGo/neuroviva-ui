@@ -9,12 +9,19 @@ export const routes = {
   forgotPassword: () => '/forgot-password' as const,
   roleSelection: () => '/role-selection' as const,
   authComplete: () => '/auth-complete' as const,
-  // Role-specific home screens (placeholders until dashboards are built)
+  // Role-specific home screens
   homeCaregiver: () => '/caregiver' as const,
   homeDoctor: () => '/doctor' as const,
   homePatient: () => '/patient' as const,
+  // Doctor tab routes
+  doctorAlerts: () => '/doctor/alertas' as const,
+  doctorCuraduria: () => '/doctor/curaduria' as const,
+  doctorProfile: () => '/doctor/perfil' as const,
+  // Patient home (new shell-based route)
+  patientHome: () => '/paciente' as const,
   // Onboarding flows
   onboardingCaregiver: () => '/onboarding/caregiver' as const,
+  onboardingPatient: () => '/onboarding/paciente' as const,
   // Caregiver tab routes
   caregiverHome: () => '/caregiver' as const,
   caregiverMeds: () => '/caregiver/medicinas' as const,
@@ -41,7 +48,7 @@ export function getHomeByRole(role: string): string {
     case 'medico':
       return routes.homeDoctor();
     case 'paciente':
-      return routes.homePatient();
+      return routes.patientHome();
     default:
       return routes.roleSelection();
   }
@@ -49,10 +56,11 @@ export function getHomeByRole(role: string): string {
 
 /**
  * Destination right after a user picks their role.
- * Caregivers go through the onboarding wizard first; other roles
+ * Caregivers and patients go through the onboarding wizard first; other roles
  * go straight to their home until their onboarding flows exist.
  */
 export function getPostRoleRoute(role: string): string {
   if (role === 'cuidador') return routes.onboardingCaregiver();
+  if (role === 'paciente') return routes.onboardingPatient();
   return getHomeByRole(role);
 }

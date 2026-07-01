@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useCaregiverOnboarding, TOTAL_STEPS } from '@/application/onboarding/useCaregiverOnboarding';
 import { OnboardingHeader } from '@/presentation/ui/OnboardingHeader';
 import { Button } from '@/presentation/ui/Button';
+import { StepDocumentNumber } from '@/presentation/onboarding/StepDocumentNumber';
 import { StepPatient } from '@/presentation/onboarding/StepPatient';
 import { StepCondition } from '@/presentation/onboarding/StepCondition';
 import { StepReading } from '@/presentation/onboarding/StepReading';
@@ -23,8 +24,12 @@ export default function CaregiverOnboardingPage() {
     skip,
     finish,
     canContinue,
+    documentNumber,
+    setDocumentNumber,
     patientName,
     setPatientName,
+    patientDateOfBirth,
+    setPatientDateOfBirth,
     relation,
     setRelation,
     conditions,
@@ -35,6 +40,9 @@ export default function CaregiverOnboardingPage() {
     setHighContrast,
     userName,
     onboardingCompleted,
+    lookupStatus,
+    lookupPatient,
+    lookupErrorMessage,
   } = useCaregiverOnboarding();
 
   // Redirect to caregiver home if onboarding was already completed
@@ -61,23 +69,39 @@ export default function CaregiverOnboardingPage() {
 
       {/* Step content — grows to fill available space */}
       <div className="flex-1">
+        {/* Step 1 — document number + patient lookup */}
         {step === 1 && (
-          <StepPatient
+          <StepDocumentNumber
+            documentNumber={documentNumber}
+            onDocumentNumberChange={setDocumentNumber}
             patientName={patientName}
             onPatientNameChange={setPatientName}
+            patientDateOfBirth={patientDateOfBirth}
+            onPatientDateOfBirthChange={setPatientDateOfBirth}
+            lookupStatus={lookupStatus}
+            foundPatientName={lookupPatient?.name ?? null}
+            errorMessage={lookupErrorMessage}
+          />
+        )}
+
+        {/* Step 2 — relation */}
+        {step === 2 && (
+          <StepPatient
             relation={relation}
             onRelationChange={setRelation}
           />
         )}
 
-        {step === 2 && (
+        {/* Step 3 — condition */}
+        {step === 3 && (
           <StepCondition
             conditions={conditions}
             onConditionsChange={setConditions}
           />
         )}
 
-        {step === 3 && (
+        {/* Step 4 — reading preferences */}
+        {step === 4 && (
           <StepReading
             largeText={largeText}
             onLargeTextChange={setLargeText}
@@ -86,8 +110,10 @@ export default function CaregiverOnboardingPage() {
           />
         )}
 
-        {step === 4 && <StepReminders />}
+        {/* Step 5 — reminders */}
+        {step === 5 && <StepReminders />}
 
+        {/* Step 6 — done */}
         {isDone && (
           <StepDone
             userName={userName}
@@ -97,7 +123,7 @@ export default function CaregiverOnboardingPage() {
         )}
       </div>
 
-      {/* Footer — fixed at bottom; hidden on step 5 (CTA is inside StepDone) */}
+      {/* Footer — fixed at bottom; hidden on last step (CTA is inside StepDone) */}
       {!isDone && (
         <div className="sticky bottom-0 px-4 pb-6 pt-3">
           <Button

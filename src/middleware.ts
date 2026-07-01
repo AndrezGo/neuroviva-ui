@@ -5,6 +5,7 @@ const PROTECTED_PREFIXES = [
   '/caregiver',
   '/doctor',
   '/patient',
+  '/paciente',
   '/onboarding',
   '/role-selection',
 ];

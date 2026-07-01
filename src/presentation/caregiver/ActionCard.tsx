@@ -31,8 +31,8 @@ export function ActionCard({ icon, title, subtitle, tone, href }: ActionCardProp
     <Link
       href={href}
       className={cn(
-        'flex flex-col gap-3 rounded-2xl border border-gray-200 bg-white p-4',
-        'transition-shadow duration-150 hover:shadow-md',
+        'flex flex-col gap-4 rounded-2xl border border-gray-200 bg-white p-5 lg:p-6',
+        'shadow-sm transition-all duration-150 hover:shadow-md hover:scale-[1.02]',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2',
       )}
       aria-label={`${title} — ${subtitle}`}
@@ -40,7 +40,7 @@ export function ActionCard({ icon, title, subtitle, tone, href }: ActionCardProp
       {/* Icon container */}
       <div
         className={cn(
-          'flex h-10 w-10 items-center justify-center rounded-xl',
+          'flex h-12 w-12 lg:h-14 lg:w-14 items-center justify-center rounded-xl',
           bg,
           text,
         )}
@@ -50,9 +50,9 @@ export function ActionCard({ icon, title, subtitle, tone, href }: ActionCardProp
       </div>
 
       {/* Text */}
-      <div>
-        <p className="text-sm font-bold text-brand-dark">{title}</p>
-        <p className="text-xs text-gray-text">{subtitle}</p>
+      <div className="flex-1">
+        <p className="text-sm font-bold text-brand-dark leading-tight">{title}</p>
+        <p className="mt-0.5 text-xs text-gray-text">{subtitle}</p>
       </div>
     </Link>
   );

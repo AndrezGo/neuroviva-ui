@@ -1,16 +1,19 @@
 'use client';
 
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCaregiverOnboardingStore } from '@/shared/store/useCaregiverOnboardingStore';
 import { usePreferencesStore } from '@/shared/store/usePreferencesStore';
 import { useAuthStore } from '@/shared/store/useAuthStore';
 import { supabaseAuthRepository } from '@/infrastructure/auth/supabaseAuth.repository';
 import { submitCaregiverOnboarding } from '@/infrastructure/api/caregiverApi.repository';
+import { usePatientLookup } from '@/application/caregiver/usePatientLookup';
 import { routes } from '@/core/routing/routes';
 import type { CaregiverCondition } from '@/domain/onboarding/onboarding.types';
+import type { PatientLookupStatus } from '@/application/caregiver/usePatientLookup';
+import type { PatientLookupResult } from '@/domain/patient/patient.types';
 
-export const TOTAL_STEPS = 5;
+export const TOTAL_STEPS = 6;
 
 export interface UseCaregiverOnboardingReturn {
   // Navigation
@@ -23,29 +26,42 @@ export interface UseCaregiverOnboardingReturn {
   finish: () => void;
   canContinue: boolean;
 
-  // Step 1 — patient info
+  // Step 1 — document number + lookup
+  documentNumber: string;
+  setDocumentNumber: (doc: string) => void;
+  patientFound: boolean;
+  setPatientFound: (found: boolean) => void;
+  lookupStatus: PatientLookupStatus;
+  lookupPatient: PatientLookupResult | null;
+  lookupErrorMessage: string | null;
+
+  // Step 1 + 2 — patient info
   patientName: string;
   setPatientName: (name: string) => void;
+  patientDateOfBirth: string | null;
+  setPatientDateOfBirth: (dob: string | null) => void;
+
+  // Step 2 — relation
   relation: string | null;
   setRelation: (relation: string | null) => void;
 
-  // Step 2 — condition (multi-select)
+  // Step 3 — condition (multi-select)
   conditions: CaregiverCondition[];
   setConditions: (conditions: CaregiverCondition[]) => void;
 
-  // Step 3 — reading preferences
+  // Step 4 — reading preferences
   largeText: boolean;
   highContrast: boolean;
   setLargeText: (value: boolean) => void;
   setHighContrast: (value: boolean) => void;
 
-  // Step 4 — reminders
+  // Step 5 — reminders
   medications: boolean;
   appointments: boolean;
   setMedications: (value: boolean) => void;
   setAppointments: (value: boolean) => void;
 
-  // Step 5 — done screen
+  // Step 6 — done screen
   userName: string;
 
   // Onboarding gate
@@ -63,13 +79,19 @@ export function useCaregiverOnboarding(): UseCaregiverOnboardingReturn {
   const userName = user?.fullName ?? '';
 
   // Onboarding persisted store
+  const documentNumber = useCaregiverOnboardingStore((s) => s.documentNumber);
+  const patientFound = useCaregiverOnboardingStore((s) => s.patientFound);
   const patientName = useCaregiverOnboardingStore((s) => s.patientName);
   const relation = useCaregiverOnboardingStore((s) => s.relation);
   const conditions = useCaregiverOnboardingStore((s) => s.conditions);
   const reminders = useCaregiverOnboardingStore((s) => s.reminders);
   const onboardingCompleted = useCaregiverOnboardingStore((s) => s.onboardingCompleted);
 
+  const setDocumentNumber = useCaregiverOnboardingStore((s) => s.setDocumentNumber);
+  const setPatientFound = useCaregiverOnboardingStore((s) => s.setPatientFound);
   const setPatientName = useCaregiverOnboardingStore((s) => s.setPatientName);
+  const patientDateOfBirth = useCaregiverOnboardingStore((s) => s.patientDateOfBirth);
+  const setPatientDateOfBirth = useCaregiverOnboardingStore((s) => s.setPatientDateOfBirth);
   const setRelation = useCaregiverOnboardingStore((s) => s.setRelation);
   const setConditions = useCaregiverOnboardingStore((s) => s.setConditions);
   const setReminders = useCaregiverOnboardingStore((s) => s.setReminders);
@@ -81,22 +103,47 @@ export function useCaregiverOnboarding(): UseCaregiverOnboardingReturn {
   const storeLargeText = usePreferencesStore((s) => s.setLargeText);
   const storeHighContrast = usePreferencesStore((s) => s.setHighContrast);
 
+  // Debounced patient lookup
+  const { status: lookupStatus, patient: lookupPatient, errorMessage: lookupErrorMessage } =
+    usePatientLookup(documentNumber);
+
+  // Sync lookup results into the store
+  useEffect(() => {
+    if (lookupStatus === 'found' && lookupPatient) {
+      setPatientName(lookupPatient.name);
+      setPatientFound(true);
+    } else if (lookupStatus === 'not-found' || lookupStatus === 'idle') {
+      if (patientFound) {
+        // Only clear patientName if it was previously auto-filled by a found result
+        setPatientName('');
+      }
+      setPatientFound(false);
+    }
+    // 'searching' and 'error' states do not change the patientFound flag
+  }, [lookupStatus, lookupPatient, patientFound, setPatientName, setPatientFound]);
+
   // Derived per-step canContinue flag
   const canContinue = useMemo(() => {
     switch (step) {
       case 1:
+        // Block while searching; require document + name if patient not found
+        if (lookupStatus === 'searching') return false;
+        if (documentNumber.trim().length < 3) return false;
+        if (patientFound) return true;
         return patientName.trim().length > 0;
       case 2:
-        return conditions.length > 0;
-      case 3:
-      case 4:
+        // Relation is optional — always can continue
         return true;
+      case 3:
+        return conditions.length > 0;
+      case 4:
+      case 5:
       default:
         return true;
     }
-  }, [step, patientName, conditions]);
+  }, [step, documentNumber, patientFound, patientName, conditions, lookupStatus]);
 
-  // Progress 0-100; step 5 is always 100
+  // Progress 0–100; last step is always 100
   const progress = useMemo(() => {
     if (step >= TOTAL_STEPS) return 100;
     return Math.round(((step - 1) / (TOTAL_STEPS - 1)) * 100);
@@ -114,35 +161,38 @@ export function useCaregiverOnboarding(): UseCaregiverOnboardingReturn {
     }
   }, [step, router]);
 
-  // Skip jumps directly to final step (confirmation shown by rendering step 5)
+  // Skip jumps directly to final step
   const skip = useCallback(() => {
     setStep(TOTAL_STEPS);
   }, []);
 
   const finish = useCallback(async () => {
-    // Retrieve access token for authenticated backend call
     const token = await supabaseAuthRepository.getAccessToken();
 
     if (!token) {
-      // No active session — redirect to login
       router.push(routes.login());
       return;
     }
 
     try {
       await submitCaregiverOnboarding(token, {
+        documentNumber,
         patientName,
+        patientDateOfBirth: patientDateOfBirth ?? null,
+        patientAge: null,
         relation: relation ?? '',
-        condition: conditions.join(','),
+        condition: conditions[0] ?? 'other',
       });
     } catch (err) {
-      // Backend error — log but do not trap the user; home handles the missing-patient state
-      console.error('[CaregiverOnboarding] submitCaregiverOnboarding failed:', err instanceof Error ? err.message : err);
+      console.error(
+        '[CaregiverOnboarding] submitCaregiverOnboarding failed:',
+        err instanceof Error ? err.message : err,
+      );
     }
 
     setOnboardingCompleted(true);
     router.push(routes.homeCaregiver());
-  }, [router, patientName, relation, conditions, setOnboardingCompleted]);
+  }, [router, documentNumber, patientName, patientDateOfBirth, relation, conditions, setOnboardingCompleted]);
 
   const setLargeText = useCallback(
     (value: boolean) => storeLargeText(value),
@@ -173,8 +223,17 @@ export function useCaregiverOnboarding(): UseCaregiverOnboardingReturn {
     skip,
     finish,
     canContinue,
+    documentNumber,
+    setDocumentNumber,
+    patientFound,
+    setPatientFound,
+    lookupStatus,
+    lookupPatient,
+    lookupErrorMessage,
     patientName,
     setPatientName,
+    patientDateOfBirth,
+    setPatientDateOfBirth,
     relation,
     setRelation,
     conditions,
