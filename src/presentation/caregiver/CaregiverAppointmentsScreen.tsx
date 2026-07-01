@@ -4,8 +4,10 @@ import { useState } from 'react';
 import { Calendar } from 'lucide-react';
 import { Button } from '@/presentation/ui/Button';
 import { CaregiverTabBar } from './CaregiverTabBar';
+import { AppointmentOutcomeSelector } from './AppointmentOutcomeSelector';
+import { isAwaitingOutcome } from '@/domain/caregiver/appointmentHelpers';
 import { cn } from '@/shared/lib/cn';
-import type { Appointment } from '@/domain/caregiver/caregiver.types';
+import type { Appointment, AppointmentOutcome } from '@/domain/caregiver/caregiver.types';
 
 // ── Module-scope helpers ──────────────────────────────────────────────────────
 
@@ -38,6 +40,10 @@ interface AppointmentListItemProps {
   onCancelStart: (id: string) => void;
   onCancelConfirm: (id: string) => void;
   onCancelAbort: () => void;
+  onRecordOutcome: (id: string, outcome: AppointmentOutcome) => Promise<boolean>;
+  isSubmittingOutcome: boolean;
+  pendingOutcomeId: string | null;
+  pendingOutcome: AppointmentOutcome | null;
 }
 
 function AppointmentListItem({
@@ -46,6 +52,10 @@ function AppointmentListItem({
   onCancelStart,
   onCancelConfirm,
   onCancelAbort,
+  onRecordOutcome,
+  isSubmittingOutcome,
+  pendingOutcomeId,
+  pendingOutcome,
 }: AppointmentListItemProps) {
   const { id, title, type, scheduledAt, status } = appointment;
   const canCancel = status === 'scheduled' || status === 'confirmed';
@@ -53,12 +63,16 @@ function AppointmentListItem({
 
   const statusLabel =
     status === 'completed' ? 'Completada' :
+    status === 'attended' ? 'Asistió' :
+    status === 'missed' ? 'Se le olvidó' :
     status === 'cancelled' ? 'Cancelada' :
     status === 'confirmed' ? 'Confirmada' :
     'Programada';
 
   const statusClass =
     status === 'completed' ? 'bg-success-light text-success' :
+    status === 'attended' ? 'bg-success-light text-success' :
+    status === 'missed' ? 'bg-warning-light text-warning' :
     status === 'cancelled' ? 'bg-error-light text-error' :
     status === 'confirmed' ? 'bg-brand-primary-light text-brand-primary' :
     'bg-warning-light text-warning';
@@ -99,6 +113,16 @@ function AppointmentListItem({
               {statusLabel}
             </span>
           </div>
+
+          {/* Outcome selector — shown only for past appointments awaiting a result */}
+          {isAwaitingOutcome(appointment) && (
+            <AppointmentOutcomeSelector
+              appointmentId={id}
+              onSelect={(outcome) => onRecordOutcome(id, outcome)}
+              isSubmitting={isSubmittingOutcome && pendingOutcomeId === id}
+              pendingOutcome={pendingOutcomeId === id ? pendingOutcome : null}
+            />
+          )}
         </div>
       </div>
 
@@ -136,6 +160,10 @@ interface CaregiverAppointmentsScreenProps {
   onReload: () => void;
   onAdd: () => void;
   onCancel: (id: string) => Promise<boolean>;
+  onRecordOutcome: (id: string, outcome: AppointmentOutcome) => Promise<boolean>;
+  isSubmittingOutcome: boolean;
+  pendingOutcomeId: string | null;
+  pendingOutcome: AppointmentOutcome | null;
 }
 
 /**
@@ -150,6 +178,10 @@ export function CaregiverAppointmentsScreen({
   onReload,
   onAdd,
   onCancel,
+  onRecordOutcome,
+  isSubmittingOutcome,
+  pendingOutcomeId,
+  pendingOutcome,
 }: CaregiverAppointmentsScreenProps) {
   const [cancellingId, setCancellingId] = useState<string | null>(null);
 
@@ -232,6 +264,10 @@ export function CaregiverAppointmentsScreen({
                 onCancelStart={handleCancelStart}
                 onCancelConfirm={handleCancelConfirm}
                 onCancelAbort={handleCancelAbort}
+                onRecordOutcome={onRecordOutcome}
+                isSubmittingOutcome={isSubmittingOutcome}
+                pendingOutcomeId={pendingOutcomeId}
+                pendingOutcome={pendingOutcome}
               />
             ))}
           </ul>

@@ -53,7 +53,8 @@ export function usePostAuthNavigation(): UsePostAuthNavigationReturn {
       // Here we rely on the store's persisted user and only update backendUser.
 
       try {
-        const backendUser = await syncUser(token);
+        const storedUser = useAuthStore.getState().user;
+        const backendUser = await syncUser(token, { name: storedUser?.fullName });
         setBackendUser(backendUser);
 
         if (backendUser.roles.length > 0) {

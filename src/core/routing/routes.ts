@@ -22,6 +22,7 @@ export const routes = {
   // Onboarding flows
   onboardingCaregiver: () => '/onboarding/caregiver' as const,
   onboardingPatient: () => '/onboarding/paciente' as const,
+  onboardingDoctor: () => '/onboarding/doctor' as const,
   // Caregiver tab routes
   caregiverHome: () => '/caregiver' as const,
   caregiverMeds: () => '/caregiver/medicinas' as const,
@@ -62,5 +63,6 @@ export function getHomeByRole(role: string): string {
 export function getPostRoleRoute(role: string): string {
   if (role === 'cuidador') return routes.onboardingCaregiver();
   if (role === 'paciente') return routes.onboardingPatient();
+  if (role === 'medico') return routes.onboardingDoctor();
   return getHomeByRole(role);
 }

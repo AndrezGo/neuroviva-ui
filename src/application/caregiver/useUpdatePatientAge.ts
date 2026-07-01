@@ -13,7 +13,7 @@ export interface UseUpdatePatientBirthDateReturn {
     patient: CaregiverPatient,
     name: string,
     dateOfBirth: string | null,
-    condition: string,
+    conditions: string[],
   ) => Promise<boolean>;
   isSaving: boolean;
   error: string | null;
@@ -40,7 +40,7 @@ export function useUpdatePatientBirthDate(): UseUpdatePatientBirthDateReturn {
       patient: CaregiverPatient,
       name: string,
       dateOfBirth: string | null,
-      condition: string,
+      conditions: string[],
     ): Promise<boolean> => {
       setIsSaving(true);
       setError(null);
@@ -68,7 +68,7 @@ export function useUpdatePatientBirthDate(): UseUpdatePatientBirthDateReturn {
           patientDateOfBirth: dateOfBirth,
           patientAge: null,
           relation: '',
-          condition: condition || patient.condition,
+          conditions: conditions.length > 0 ? conditions : patient.conditions,
         });
 
         addToast({ type: 'success', message: 'Información del paciente actualizada' });

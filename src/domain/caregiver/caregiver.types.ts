@@ -8,7 +8,7 @@ export interface CaregiverPatient {
   name: string;
   age: number;
   dateOfBirth?: string | null;
-  condition: string;
+  conditions: string[];
   conditionStage: string | null;
 }
 
@@ -41,7 +41,7 @@ export interface CaregiverOnboardingPayload {
   patientAge?: number | null;
   patientDateOfBirth?: string | null;
   relation: string;
-  condition: string;
+  conditions: string[];
 }
 
 export interface CaregiverOnboardingResult {
@@ -84,12 +84,16 @@ export interface LogMedicationResult {
 
 // ── Appointments ─────────────────────────────────────────────────────────────
 
+export type AppointmentOutcome = 'attended' | 'cancelled' | 'missed';
+export type AppointmentStatus = 'scheduled' | 'confirmed' | 'completed' | 'cancelled' | 'attended' | 'missed';
+
 export interface Appointment {
   id: string;
   title: string;
   type: string;
   scheduledAt: string;
-  status: string;
+  status: AppointmentStatus;
+  requiresOutcome: boolean;
 }
 
 export interface CreateAppointmentInput {

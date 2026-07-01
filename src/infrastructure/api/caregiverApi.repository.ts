@@ -15,6 +15,7 @@ import type {
   Appointment,
   CreateAppointmentInput,
   CreateAppointmentResult,
+  AppointmentOutcome,
   Symptom,
   CreateSymptomPayload,
   HistoryEvent,
@@ -148,6 +149,22 @@ export async function createAppointment(
 export async function cancelAppointment(token: string, id: string): Promise<void> {
   await apiRequest<void>(`/api/v1/caregiver/appointments/${id}/cancel`, {
     method: 'PATCH',
+    token,
+  });
+}
+
+/**
+ * Records the final outcome for a past appointment.
+ * Returns 204 No Content on success.
+ */
+export async function recordAppointmentOutcome(
+  token: string,
+  id: string,
+  outcome: AppointmentOutcome,
+): Promise<void> {
+  await apiRequest<void>(`/api/v1/caregiver/appointments/${id}/outcome`, {
+    method: 'PATCH',
+    body: JSON.stringify({ outcome }),
     token,
   });
 }

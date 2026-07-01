@@ -103,14 +103,22 @@ html[data-large-text="true"] {
 
 /* ── High contrast — token remaps only, zero raw hex ─────── */
 /*
- * Dark surfaces (onboarding): muted text tokens pushed toward --color-gray-50
- * so labels reading `text-gray-400` / `text-gray-300` become near-white.
- * Light surfaces (auth/home): secondary text token pushed to deepest
- * brand dark for maximum contrast against light backgrounds.
+ * Light surfaces (default): muted tokens pushed to brand-dark for maximum
+ * contrast against light/white backgrounds (e.g. tab bars, cards).
+ * Dark surfaces (`.bg-brand-surface` — onboarding flow, CaregiverHeader):
+ * muted tokens pushed toward near-white instead, since pushing them dark
+ * would make them invisible against the dark background. Higher-specificity
+ * selector below overrides the base rule for descendants of `.bg-brand-surface`.
  * All values reference existing @theme tokens — no literal hex used.
  */
 html[data-high-contrast="true"] {
   --color-gray-text: var(--color-brand-dark);
+  --color-gray-400: var(--color-brand-dark);
+  --color-gray-300: var(--color-brand-dark);
+}
+
+html[data-high-contrast="true"] .bg-brand-surface {
+  --color-gray-text: var(--color-gray-50);
   --color-gray-400: var(--color-gray-50);
   --color-gray-300: var(--color-gray-50);
 }

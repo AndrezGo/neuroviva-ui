@@ -1,5 +1,6 @@
 'use client';
 
+import { Activity, Pill, CalendarCheck, AlertTriangle, Bell, type LucideIcon } from 'lucide-react';
 import { cn } from '@/shared/lib/cn';
 import { formatRelativeTime } from '@/shared/lib/relativeTime';
 import { DoctorTabBar } from './DoctorTabBar';
@@ -16,22 +17,38 @@ interface DoctorAlertsScreenProps {
   isScientificCommittee?: boolean;
 }
 
-/**
- * Returns badge classes and display label for an alert priority level.
- */
-function getPriorityBadge(priority: AlertPriority): { classes: string; label: string } {
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function getAlertIcon(type: string): LucideIcon {
+  const t = type.toLowerCase();
+  if (t.includes('agit') || t.includes('conduct')) return Activity;
+  if (t.includes('medic') || t.includes('farmac')) return Pill;
+  if (t.includes('cita') || t.includes('seguimient')) return CalendarCheck;
+  if (t.includes('caida') || t.includes('accid')) return AlertTriangle;
+  return Bell;
+}
+
+function getIconContainerClasses(priority: AlertPriority): string {
   switch (priority) {
-    case 'critica':
-      return { classes: 'bg-red-100 text-red-700', label: 'Crítica' };
-    case 'alta':
-      return { classes: 'bg-orange-100 text-orange-700', label: 'Alta' };
-    case 'media':
-      return { classes: 'bg-yellow-100 text-yellow-700', label: 'Media' };
+    case 'critica': return 'bg-red-100 text-red-600';
+    case 'alta':    return 'bg-orange-100 text-orange-600';
+    case 'media':   return 'bg-yellow-100 text-yellow-600';
     case 'info':
-    default:
-      return { classes: 'bg-blue-100 text-blue-700', label: 'Info' };
+    default:        return 'bg-blue-100 text-blue-600';
   }
 }
+
+function getPriorityBadge(priority: AlertPriority): { classes: string; label: string } {
+  switch (priority) {
+    case 'critica': return { classes: 'bg-red-100 text-red-700', label: 'Crítica' };
+    case 'alta':    return { classes: 'bg-orange-100 text-orange-700', label: 'Alta' };
+    case 'media':   return { classes: 'bg-yellow-100 text-yellow-700', label: 'Media' };
+    case 'info':
+    default:        return { classes: 'bg-blue-100 text-blue-700', label: 'Info' };
+  }
+}
+
+// ─── Component ────────────────────────────────────────────────────────────────
 
 /**
  * Purely presentational screen for the doctor's smart alerts.
@@ -51,7 +68,8 @@ export function DoctorAlertsScreen({
     <div className="flex flex-1 flex-col pb-24 lg:pb-8">
       {/* ── Header ───────────────────────────────────────────── */}
       <div className="px-5 pt-6 pb-4">
-        <h1 className="text-2xl font-bold text-brand-dark">Alertas Inteligentes</h1>
+        <h1 className="text-2xl font-bold text-brand-dark">Alertas inteligentes</h1>
+        <p className="mt-1 text-sm text-gray-400">Priorizadas por IA. Tú decides la conducta.</p>
       </div>
 
       {/* ── Content ──────────────────────────────────────────── */}
@@ -92,7 +110,13 @@ export function DoctorAlertsScreen({
         {/* Empty state */}
         {!isLoading && !isError && alerts.length === 0 && (
           <div className="flex flex-1 flex-col items-center justify-center gap-3 py-16 text-center">
-            <p className="text-sm text-gray-text">No hay alertas activas.</p>
+            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gray-100">
+              <Bell className="h-10 w-10 text-gray-400" aria-hidden="true" />
+            </div>
+            <p className="text-base font-semibold text-brand-dark">Sin alertas activas</p>
+            <p className="max-w-xs text-sm text-gray-400">
+              El sistema te avisará cuando haya situaciones que requieran tu atención.
+            </p>
           </div>
         )}
 
@@ -101,14 +125,15 @@ export function DoctorAlertsScreen({
           !isError &&
           alerts.map((alert) => {
             const badge = getPriorityBadge(alert.priority);
+            const iconContainerClasses = getIconContainerClasses(alert.priority);
+            const Icon = getAlertIcon(alert.type);
+
             return (
               <article
                 key={alert.id}
                 className={cn(
-                  'rounded-2xl border px-5 py-4 shadow',
-                  alert.seen
-                    ? 'border-gray-100 bg-white'
-                    : 'border-brand-primary/20 bg-brand-primary/5',
+                  'rounded-2xl bg-white px-4 py-4 shadow-sm border',
+                  alert.seen ? 'border-gray-100' : 'border-brand-primary/20',
                 )}
                 onClick={() => {
                   if (!alert.seen) onMarkSeen(alert.id);
@@ -123,29 +148,48 @@ export function DoctorAlertsScreen({
                 }}
                 aria-label={!alert.seen ? `Marcar alerta de ${alert.patientName} como vista` : undefined}
               >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex-1 min-w-0">
-                    <p className="font-bold text-brand-dark truncate">{alert.patientName}</p>
-                    <p className="mt-0.5 text-xs text-gray-text">{alert.type}</p>
-                  </div>
-                  <span
+                {/* Row 1: icon box + title + badge */}
+                <div className="flex items-start gap-3">
+                  {/* Icon box */}
+                  <div
+                    aria-hidden="true"
                     className={cn(
-                      'shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold',
-                      badge.classes,
+                      'flex h-10 w-10 shrink-0 items-center justify-center rounded-xl',
+                      iconContainerClasses,
                     )}
                   >
-                    {badge.label}
-                  </span>
+                    <Icon className="h-5 w-5" />
+                  </div>
+
+                  {/* Title + badge */}
+                  <div className="flex flex-1 min-w-0 items-start justify-between gap-2">
+                    <p className="font-bold text-brand-dark leading-snug">{alert.type}</p>
+                    <span
+                      className={cn(
+                        'shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold',
+                        badge.classes,
+                      )}
+                    >
+                      {badge.label}
+                    </span>
+                  </div>
                 </div>
 
-                <p className="mt-2 text-sm text-gray-text line-clamp-2">{alert.description}</p>
+                {/* Row 2: patient name · relative time */}
+                <p className="mt-2 ml-[52px] text-xs text-gray-400">
+                  {alert.patientName}
+                  {' · '}
+                  {formatRelativeTime(alert.createdAt)}
+                </p>
 
-                <div className="mt-3 flex items-center justify-between gap-2">
-                  <span className="text-xs text-gray-400">
-                    {formatRelativeTime(alert.createdAt)}
-                  </span>
+                {/* Row 3: description */}
+                <p className="mt-1.5 ml-[52px] text-sm text-gray-text line-clamp-2">
+                  {alert.description}
+                </p>
 
-                  {!alert.resolved && (
+                {/* Row 4: resolve button */}
+                {!alert.resolved && (
+                  <div className="mt-3 ml-[52px] flex">
                     <button
                       type="button"
                       onClick={(e) => {
@@ -160,8 +204,8 @@ export function DoctorAlertsScreen({
                     >
                       Resolver
                     </button>
-                  )}
-                </div>
+                  </div>
+                )}
               </article>
             );
           })}

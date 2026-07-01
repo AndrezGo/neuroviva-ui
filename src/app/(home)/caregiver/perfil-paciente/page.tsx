@@ -41,9 +41,9 @@ export default function CaregiverPerfilPacientePage() {
   }, [resetError]);
 
   const handleSaveProfile = useCallback(
-    async (name: string, dob: string | null, condition: string) => {
+    async (name: string, dob: string | null, conditions: string[]) => {
       if (!patient) return;
-      const ok = await updateProfile(patient, name, dob, condition);
+      const ok = await updateProfile(patient, name, dob, conditions);
       if (ok) {
         setEditProfileSheetOpen(false);
         reload();

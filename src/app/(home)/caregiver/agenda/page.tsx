@@ -20,6 +20,10 @@ export default function CaregiverAgendaPage() {
     error,
     reload,
     cancelAppointment,
+    onRecordOutcome,
+    isSubmittingOutcome,
+    pendingOutcomeId,
+    pendingOutcome,
   } = useCaregiverAppointments();
 
   const handleAdd = useCallback(() => {
@@ -36,6 +40,10 @@ export default function CaregiverAgendaPage() {
         onReload={reload}
         onAdd={handleAdd}
         onCancel={cancelAppointment}
+        onRecordOutcome={onRecordOutcome}
+        isSubmittingOutcome={isSubmittingOutcome}
+        pendingOutcomeId={pendingOutcomeId}
+        pendingOutcome={pendingOutcome}
       />
     </CaregiverShell>
   );

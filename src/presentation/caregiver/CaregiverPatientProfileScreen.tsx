@@ -54,7 +54,7 @@ interface CaregiverPatientProfileScreenProps {
   onEditProfile?: () => void;
   editProfileSheetOpen?: boolean;
   onCloseEditProfile?: () => void;
-  onSaveProfile?: (name: string, dob: string | null, condition: string) => void;
+  onSaveProfile?: (name: string, dob: string | null, conditions: string[]) => void;
   isSavingProfile?: boolean;
   saveProfileError?: string | null;
   onClearProfileError?: () => void;
@@ -185,8 +185,10 @@ export function CaregiverPatientProfileScreen({
               {/* Condición */}
               <div className="flex items-center justify-between py-4">
                 <dt className="text-sm font-medium text-gray-text">Condición</dt>
-                <dd className="text-sm font-semibold text-brand-dark">
-                  {conditionLabel(patient.condition)}
+                <dd className="text-sm font-semibold text-brand-dark text-right">
+                  {patient.conditions.length > 0
+                    ? patient.conditions.map(conditionLabel).join(', ')
+                    : <span className="text-gray-400 font-normal">Sin registrar</span>}
                 </dd>
               </div>
 
@@ -221,7 +223,7 @@ export function CaregiverPatientProfileScreen({
                 open={editProfileSheetOpen ?? false}
                 currentName={patient.name}
                 currentDateOfBirth={patient.dateOfBirth}
-                currentCondition={patient.condition}
+                currentConditions={patient.conditions}
                 isSaving={isSavingProfile ?? false}
                 error={saveProfileError ?? null}
                 onClose={onCloseEditProfile}
@@ -248,7 +250,9 @@ export function CaregiverPatientProfileScreen({
                   {/* Info */}
                   <div className="flex flex-1 flex-col gap-0.5 min-w-0">
                     <span className="text-sm font-bold text-brand-dark truncate">
-                      {currentDoctor.name}
+                      {currentDoctor.name
+                        ? currentDoctor.name.startsWith('Dr.') ? currentDoctor.name : `Dr. ${currentDoctor.name}`
+                        : 'Dr.'}
                     </span>
                     {currentDoctor.specialty && (
                       <span className="text-xs text-gray-text truncate">

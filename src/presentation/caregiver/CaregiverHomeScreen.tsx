@@ -11,8 +11,8 @@ import type { CaregiverPatient, CaregiverToday } from '@/domain/caregiver/caregi
 function buildPatientInfo(patient: CaregiverPatient): string {
   return [
     patient.age > 0 ? `${patient.age} años` : null,
-    patient.condition
-      ? `${patient.condition}${patient.conditionStage ? ` ${patient.conditionStage}` : ''}`
+    patient.conditions.length > 0
+      ? `${patient.conditions.join(', ')}${patient.conditionStage ? ` ${patient.conditionStage}` : ''}`
       : null,
   ]
     .filter(Boolean)

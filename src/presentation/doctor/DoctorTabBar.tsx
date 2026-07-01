@@ -41,7 +41,7 @@ export function DoctorTabBar({ activeTab, isScientificCommittee = false }: Docto
                   'flex w-full min-h-[44px] flex-col items-center justify-center gap-0.5 rounded-xl px-0.5 py-1.5',
                   'text-[10px] leading-tight font-medium transition-colors duration-150',
                   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-1',
-                  isActive ? 'text-brand-primary' : 'text-gray-400',
+                  isActive ? 'text-brand-primary' : 'text-gray-text',
                 )}
               >
                 <Icon className="h-5 w-5" aria-hidden="true" />

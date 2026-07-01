@@ -3,7 +3,7 @@ export type AlertPriority = 'info' | 'media' | 'alta' | 'critica';
 export interface DoctorPatient {
   patientId: string;
   name: string;
-  condition: string | null;
+  conditions: string[];
   conditionStage: string | null;
   age: number;
   highestAlertPriority: AlertPriority | null;

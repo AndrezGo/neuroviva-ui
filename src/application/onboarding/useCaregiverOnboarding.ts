@@ -181,7 +181,7 @@ export function useCaregiverOnboarding(): UseCaregiverOnboardingReturn {
         patientDateOfBirth: patientDateOfBirth ?? null,
         patientAge: null,
         relation: relation ?? '',
-        condition: conditions[0] ?? 'other',
+        conditions: conditions.length > 0 ? conditions : ['other'],
       });
     } catch (err) {
       console.error(

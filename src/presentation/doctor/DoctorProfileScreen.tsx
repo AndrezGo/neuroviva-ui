@@ -47,7 +47,11 @@ export function DoctorProfileScreen({
             </div>
             <div className="min-w-0">
               <p className="truncate font-bold text-brand-dark">{firstName || 'Médico'}</p>
-              <p className="truncate text-sm text-gray-text">{email}</p>
+              <p className="truncate text-sm text-gray-text">
+                {firstName
+                  ? firstName.startsWith('Dr.') ? firstName : `Dr. ${firstName}`
+                  : 'Dr.'}
+              </p>
             </div>
           </div>
 

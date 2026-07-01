@@ -101,8 +101,8 @@ export function CaregiverHeader({
               <p className="truncate text-xs text-gray-300">
                 {[
                   patient.age > 0 ? `${patient.age} años` : null,
-                  patient.condition
-                    ? `${patient.condition}${patient.conditionStage ? ` ${patient.conditionStage}` : ''}`
+                  patient.conditions.length > 0
+                    ? `${patient.conditions.join(', ')}${patient.conditionStage ? ` ${patient.conditionStage}` : ''}`
                     : null,
                 ]
                   .filter(Boolean)

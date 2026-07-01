@@ -84,6 +84,9 @@ export function DoctorPatientsScreen({
     <div className="flex flex-1 flex-col pb-24 lg:pb-8">
       {/* ── Header ──────────────────────────────────────────────── */}
       <div className="px-5 pt-6 pb-4">
+        <p className="text-xs font-semibold uppercase tracking-widest text-brand-primary mb-1">
+          Panel Clínico
+        </p>
         <h1 className="text-2xl font-bold text-brand-dark">Mis Pacientes</h1>
 
         {/* Summary stat cards */}
@@ -204,7 +207,7 @@ export function DoctorPatientsScreen({
                         </p>
                         <p className="text-xs text-gray-text mt-0.5 truncate">
                           {patient.age} años
-                          {patient.condition ? ` · ${patient.condition}` : ''}
+                          {patient.conditions.length > 0 ? ` · ${patient.conditions.join(', ')}` : ''}
                           {patient.conditionStage ? ` · ${patient.conditionStage}` : ''}
                         </p>
                         {actRelative && (

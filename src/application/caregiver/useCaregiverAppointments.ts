@@ -8,7 +8,8 @@ import {
   cancelAppointment as cancelAppointmentRepo,
 } from '@/infrastructure/api/caregiverApi.repository';
 import { ApiError } from '@/infrastructure/api/apiClient';
-import type { Appointment, CreateAppointmentInput } from '@/domain/caregiver/caregiver.types';
+import { useRecordOutcome } from './useRecordOutcome';
+import type { Appointment, CreateAppointmentInput, AppointmentOutcome } from '@/domain/caregiver/caregiver.types';
 import type { AppointmentFormValues } from './caregiverSchemas';
 
 export interface UseCaregiverAppointmentsReturn {
@@ -23,6 +24,10 @@ export interface UseCaregiverAppointmentsReturn {
   cancelAppointment: (id: string) => Promise<boolean>;
   isCancelling: boolean;
   cancelError: string | null;
+  onRecordOutcome: (id: string, outcome: AppointmentOutcome) => Promise<boolean>;
+  isSubmittingOutcome: boolean;
+  pendingOutcomeId: string | null;
+  pendingOutcome: AppointmentOutcome | null;
 }
 
 /**
@@ -43,9 +48,25 @@ export function useCaregiverAppointments(): UseCaregiverAppointmentsReturn {
 
   const [reloadKey, setReloadKey] = useState(0);
 
+  const {
+    recordOutcome,
+    isSubmitting: isSubmittingOutcome,
+    pendingId: pendingOutcomeId,
+    pendingOutcome,
+  } = useRecordOutcome();
+
   const reload = useCallback(() => {
     setReloadKey((k) => k + 1);
   }, []);
+
+  const handleRecordOutcome = useCallback(
+    async (id: string, outcome: AppointmentOutcome): Promise<boolean> => {
+      const success = await recordOutcome(id, outcome);
+      if (success) reload();
+      return success;
+    },
+    [recordOutcome, reload],
+  );
 
   const fetchData = useCallback(async (active: { current: boolean }) => {
     setIsLoading(true);
@@ -171,5 +192,9 @@ export function useCaregiverAppointments(): UseCaregiverAppointmentsReturn {
     cancelAppointment,
     isCancelling,
     cancelError,
+    onRecordOutcome: handleRecordOutcome,
+    isSubmittingOutcome,
+    pendingOutcomeId,
+    pendingOutcome,
   };
 }

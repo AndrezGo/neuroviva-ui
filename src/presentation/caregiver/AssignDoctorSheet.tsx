@@ -122,7 +122,11 @@ export function AssignDoctorSheet({
 
                 {/* Info */}
                 <div className="flex flex-1 flex-col gap-0.5 min-w-0">
-                  <span className="text-sm font-bold text-brand-dark truncate">{doctor.name}</span>
+                  <span className="text-sm font-bold text-brand-dark truncate">
+                    {doctor.name
+                      ? doctor.name.startsWith('Dr.') ? doctor.name : `Dr. ${doctor.name}`
+                      : 'Dr.'}
+                  </span>
                   <span className="text-xs text-gray-text truncate">{subtitle}</span>
                 </div>
 

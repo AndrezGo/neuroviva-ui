@@ -18,6 +18,6 @@ export interface PatientProfile {
   id: string;
   name: string;
   documentNumber: string;
-  condition: string;
+  conditions: string[];
   dateOfBirth: string;
 }
