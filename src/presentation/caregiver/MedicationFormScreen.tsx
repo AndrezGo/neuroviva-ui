@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { BackButton } from '@/presentation/ui/BackButton';
 import { TextField } from '@/presentation/ui/TextField';
 import { Button } from '@/presentation/ui/Button';
+import { Textarea } from '@/presentation/ui/Textarea';
 import { medicationSchema, type MedicationFormValues } from '@/application/caregiver/caregiverSchemas';
 
 interface MedicationFormScreenProps {
@@ -34,7 +35,8 @@ export function MedicationFormScreen({
       frequency: '',
       startDate: '',
       endDate: '',
-      intervalHours: '',
+      prescribingDoctorName: '',
+      notes: '',
     },
   });
 
@@ -82,26 +84,13 @@ export function MedicationFormScreen({
           {...register('frequency')}
         />
 
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="intervalHours" className="text-sm font-semibold text-brand-dark">
-            Intervalo fijo (opcional)
-          </label>
-          <select
-            id="intervalHours"
-            className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm text-brand-dark transition-colors focus:outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20"
-            {...register('intervalHours')}
-          >
-            <option value="">Sin intervalo fijo</option>
-            <option value="4">Cada 4 horas</option>
-            <option value="6">Cada 6 horas</option>
-            <option value="8">Cada 8 horas</option>
-            <option value="12">Cada 12 horas</option>
-            <option value="24">Cada 24 horas</option>
-          </select>
-          <p className="text-xs text-gray-text">
-            Si seleccionas un intervalo, mostraremos un contador de "próxima toma" en Inicio.
-          </p>
-        </div>
+        <TextField
+          label="Nombre del médico que lo formula"
+          placeholder="Dr. Ramírez"
+          autoComplete="off"
+          error={errors.prescribingDoctorName?.message}
+          {...register('prescribingDoctorName')}
+        />
 
         <TextField
           label="Fecha inicio (opcional)"
@@ -115,6 +104,14 @@ export function MedicationFormScreen({
           type="date"
           error={errors.endDate?.message}
           {...register('endDate')}
+        />
+
+        <Textarea
+          label="Notas"
+          placeholder="Ajuste al tratamiento a partir de 30/06/2026"
+          rows={4}
+          error={errors.notes?.message}
+          {...register('notes')}
         />
 
         {/* Form-level error */}

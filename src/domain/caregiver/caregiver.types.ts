@@ -71,8 +71,8 @@ export interface CreateMedicationInput {
   frequency: string;
   startDate?: string;
   endDate?: string;
-  /** Fixed dosing interval in hours — enables the "next dose" countdown. */
-  intervalHours?: number;
+  prescribingDoctorName?: string;
+  notes?: string;
 }
 
 export interface CreateMedicationResult {
