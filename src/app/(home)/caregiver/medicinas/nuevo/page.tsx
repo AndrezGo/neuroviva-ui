@@ -18,7 +18,10 @@ export default function CaregiverMedicinasNuevoPage() {
 
   const handleSubmit = useCallback(
     async (values: MedicationFormValues): Promise<boolean> => {
-      const success = await createMedication(values);
+      const success = await createMedication({
+        ...values,
+        intervalHours: values.intervalHours ? Number(values.intervalHours) : undefined,
+      });
       if (success) {
         router.push(routes.caregiverMeds());
       }

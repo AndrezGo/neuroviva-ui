@@ -114,6 +114,7 @@ export function useCaregiverMedications(): UseCaregiverMedicationsReturn {
           frequency: input.frequency,
           startDate: input.startDate || undefined,
           endDate: input.endDate || undefined,
+          intervalHours: input.intervalHours,
         };
 
         await createMedicationRepo(token, payload);

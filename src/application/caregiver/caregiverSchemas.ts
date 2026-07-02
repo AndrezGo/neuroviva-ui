@@ -15,6 +15,8 @@ export const medicationSchema = z.object({
     .max(80, 'La frecuencia no puede superar 80 caracteres'),
   startDate: z.string().optional(),
   endDate: z.string().optional(),
+  /** Empty string means "sin intervalo fijo" — coerced to undefined before submit. */
+  intervalHours: z.string().optional(),
 });
 
 export type MedicationFormValues = z.infer<typeof medicationSchema>;

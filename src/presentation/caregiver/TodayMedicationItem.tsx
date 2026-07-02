@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { Pill } from 'lucide-react';
 import { cn } from '@/shared/lib/cn';
 import type { TodayMedication, MedicationStatus } from '@/domain/caregiver/caregiver.types';
@@ -29,16 +30,48 @@ const statusLabels: Record<MedicationStatus, string> = {
   skipped: 'omitido',
 };
 
+/**
+ * Formats the time remaining until `nextDoseAt` as "Próxima toma en X".
+ * Returns null when there's nothing meaningful to show (no next-dose data,
+ * or it's already due/overdue — the "Ahora" badge covers that case instead).
+ */
+function formatNextDoseCountdown(nextDoseAt: string, now: number): string | null {
+  const target = new Date(nextDoseAt).getTime();
+  if (Number.isNaN(target)) return null;
+
+  const diffMs = target - now;
+  if (diffMs <= 0) return null;
+
+  const totalMinutes = Math.round(diffMs / 60_000);
+  if (totalMinutes < 1) return 'Próxima toma en menos de 1 min';
+  if (totalMinutes < 60) return `Próxima toma en ${totalMinutes} min`;
+
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  return minutes > 0 ? `Próxima toma en ${hours} h ${minutes} min` : `Próxima toma en ${hours} h`;
+}
+
 interface TodayMedicationItemProps {
   medication: TodayMedication;
 }
 
 /**
  * Single row displaying a scheduled medication for today.
- * Shows an "Ahora" badge in amber when the medication is due right now.
+ * Shows an "Ahora" badge in amber when the medication is due right now,
+ * and a live-updating "próxima toma en X" countdown when nextDoseAt is set.
  */
 export function TodayMedicationItem({ medication }: TodayMedicationItemProps) {
-  const { name, dose, scheduledTime, status, isNow } = medication;
+  const { name, dose, scheduledTime, status, isNow, nextDoseAt } = medication;
+
+  const [now, setNow] = useState(() => Date.now());
+
+  useEffect(() => {
+    if (!nextDoseAt) return;
+    const interval = setInterval(() => setNow(Date.now()), 30_000);
+    return () => clearInterval(interval);
+  }, [nextDoseAt]);
+
+  const countdown = nextDoseAt ? formatNextDoseCountdown(nextDoseAt, now) : null;
 
   return (
     <div className="flex items-center gap-3 py-3">
@@ -56,6 +89,9 @@ export function TodayMedicationItem({ medication }: TodayMedicationItemProps) {
         <p className="truncate text-xs text-gray-text">
           {dose} · {formatTime12h(scheduledTime)} · {statusLabels[status]}
         </p>
+        {countdown && (
+          <p className="truncate text-xs font-medium text-brand-primary">{countdown}</p>
+        )}
       </div>
 
       {/* "Ahora" badge */}

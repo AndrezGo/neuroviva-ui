@@ -21,6 +21,9 @@ export interface TodayMedication {
   scheduledTime: string;
   status: MedicationStatus;
   isNow: boolean;
+  /** ISO 8601 timestamp of the next scheduled dose. Null when the medication
+   * has no fixed interval, or no prior dose has been logged to anchor it. */
+  nextDoseAt: string | null;
 }
 
 export interface TodayAppointment {
@@ -68,6 +71,8 @@ export interface CreateMedicationInput {
   frequency: string;
   startDate?: string;
   endDate?: string;
+  /** Fixed dosing interval in hours — enables the "next dose" countdown. */
+  intervalHours?: number;
 }
 
 export interface CreateMedicationResult {
