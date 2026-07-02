@@ -4,11 +4,20 @@ import { Pill } from 'lucide-react';
 import { cn } from '@/shared/lib/cn';
 import type { TodayMedication, MedicationStatus } from '@/domain/caregiver/caregiver.types';
 
-/** Maps a 24h "HH:mm" string to a 12h "H:MM AM/PM" display string. */
+/**
+ * Maps a 24h "HH:mm" string to a 12h "H:MM AM/PM" display string.
+ * `scheduledTime` is backed by the medication's free-text frequency field
+ * (e.g. "cada 8 horas"), not a guaranteed clock time — anything that isn't
+ * a valid "HH:mm" is returned unchanged instead of producing "NaN:00 PM".
+ */
 function formatTime12h(time: string): string {
-  const [hourStr, minuteStr] = time.split(':');
-  const hour = parseInt(hourStr ?? '0', 10);
-  const minute = minuteStr ?? '00';
+  const match = /^(\d{1,2}):(\d{2})$/.exec(time.trim());
+  if (!match) return time;
+
+  const hour = parseInt(match[1], 10);
+  const minute = match[2];
+  if (hour < 0 || hour > 23) return time;
+
   const period = hour < 12 ? 'AM' : 'PM';
   const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
   return `${displayHour}:${minute} ${period}`;
