@@ -1,5 +1,6 @@
 'use client';
 
+import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { HeartHandshake, Stethoscope, User } from 'lucide-react';
 import { RoleCard } from '@/presentation/ui/RoleCard';
@@ -41,6 +42,14 @@ const OAUTH_ERROR_MESSAGE =
   'Hubo un problema al iniciar sesión con Google. Por favor intenta de nuevo.';
 
 export default function RoleSelectionPage() {
+  return (
+    <Suspense fallback={null}>
+      <RoleSelectionContent />
+    </Suspense>
+  );
+}
+
+function RoleSelectionContent() {
   const { selectedRole, selectRole, confirm, isLoading, error } = useRoleSelection();
   const searchParams = useSearchParams();
   const oauthError = searchParams.get('error') === 'oauth' ? OAUTH_ERROR_MESSAGE : null;
