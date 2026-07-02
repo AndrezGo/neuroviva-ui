@@ -35,60 +35,73 @@ function MedicationListItem({
 
   return (
     <>
-      <li className="flex items-center gap-3 py-4 border-b border-gray-100 last:border-b-0">
-        {/* Icon */}
-        <div
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-primary-light text-brand-primary"
-          aria-hidden="true"
-        >
-          <Pill className="h-5 w-5" />
-        </div>
+      <li className="py-4 border-b border-gray-100 last:border-b-0">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-4">
 
-        {/* Info */}
-        <div className="flex-1 min-w-0">
-          <div className="flex flex-wrap items-center gap-1.5">
-            <p className="truncate text-sm font-semibold text-brand-dark">{medication.name}</p>
-            {medication.takenToday === true && (
-              <span className="bg-success-light text-success text-xs font-semibold px-2 py-0.5 rounded-full">
-                Tomada hoy
-              </span>
-            )}
-          </div>
-          <p className="truncate text-xs text-gray-text">
-            {medication.dose} · {medication.frequency}
-          </p>
-          <div className="mt-1 flex flex-wrap items-center gap-1.5">
-            <span
-              className={cn(
-                'inline-block rounded-full px-2 py-0.5 text-xs font-medium',
-                medication.active
-                  ? 'bg-success-light text-success'
-                  : 'bg-gray-100 text-gray-text',
-              )}
+          {/* Identity zone: icon + name/dose/badges */}
+          <div className="flex flex-1 min-w-0 items-start gap-3">
+            {/* Icon tile */}
+            <div
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-primary-light text-brand-primary"
+              aria-hidden="true"
             >
-              {medication.active ? 'Activo' : 'Inactivo'}
-            </span>
+              <Pill className="h-5 w-5" />
+            </div>
+
+            {/* Info block */}
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-semibold text-brand-dark text-pretty break-words">
+                {medication.name}
+              </p>
+
+              <p className="mt-0.5 text-xs text-gray-text break-words">
+                {medication.dose} · {medication.frequency}
+              </p>
+
+              {/* Badge row */}
+              <div className="mt-2 flex flex-wrap items-center gap-2">
+                {medication.takenToday === true && (
+                  <span className="bg-success-light text-success text-xs font-semibold px-2 py-0.5 rounded-full">
+                    Tomada hoy
+                  </span>
+                )}
+
+                <span
+                  className={cn(
+                    'inline-block rounded-full px-2 py-0.5 text-xs font-medium',
+                    medication.active
+                      ? 'bg-success-light text-success'
+                      : 'bg-gray-100 text-gray-text',
+                  )}
+                >
+                  {medication.active ? 'Activo' : 'Inactivo'}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Action zone */}
+          <div className="flex flex-col gap-2 sm:w-auto sm:shrink-0 sm:flex-row sm:items-center sm:gap-3">
             <button
               type="button"
               onClick={() => onViewHistory(medication.id)}
-              className="text-xs text-brand-primary font-medium underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary rounded"
+              className="self-start inline-flex items-center justify-center rounded-xl px-4 py-2.5 text-xs font-semibold text-brand-primary border border-brand-primary/25 bg-brand-primary-light hover:bg-brand-primary/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 sm:self-auto sm:w-auto"
             >
               Ver historial
             </button>
-          </div>
-        </div>
 
-        {/* Action */}
-        <div className="shrink-0">
-          <Button
-            variant="secondary"
-            size="sm"
-            isLoading={isLogging}
-            onClick={() => setSheetOpen(true)}
-            aria-label={`Registrar toma de ${medication.name}`}
-          >
-            Registrar toma
-          </Button>
+            <Button
+              variant="secondary"
+              size="md"
+              fullWidth
+              isLoading={isLogging}
+              onClick={() => setSheetOpen(true)}
+              aria-label={`Registrar toma de ${medication.name}`}
+              className="sm:w-auto"
+            >
+              Registrar toma
+            </Button>
+          </div>
         </div>
       </li>
 
