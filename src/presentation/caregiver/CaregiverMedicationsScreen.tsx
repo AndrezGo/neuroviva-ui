@@ -1,12 +1,14 @@
 'use client';
 
-import { useState, useCallback } from 'react';
-import { Pill } from 'lucide-react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
+import { Pill, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/presentation/ui/Button';
 import { CaregiverTabBar } from './CaregiverTabBar';
 import { cn } from '@/shared/lib/cn';
 import { LogIntakeSheet } from './LogIntakeSheet';
 import type { Medication } from '@/domain/caregiver/caregiver.types';
+
+const PAGE_SIZE = 3;
 
 // ── MedicationListItem ────────────────────────────────────────────────────────
 
@@ -149,6 +151,35 @@ export function CaregiverMedicationsScreen({
 }: CaregiverMedicationsScreenProps) {
   const isEmpty = !isLoading && !isError && medications.length === 0;
 
+  const [searchQuery, setSearchQuery] = useState('');
+  const [page, setPage] = useState(1);
+
+  const filteredMedications = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    if (!query) return medications;
+    return medications.filter((med) => med.name.toLowerCase().includes(query));
+  }, [medications, searchQuery]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredMedications.length / PAGE_SIZE));
+
+  // Keep the current page in range whenever the filtered list or page size changes
+  // (e.g. a search narrows the results down to fewer pages than we're currently on).
+  useEffect(() => {
+    setPage((p) => Math.min(p, totalPages));
+  }, [totalPages]);
+
+  const pagedMedications = filteredMedications.slice(
+    (page - 1) * PAGE_SIZE,
+    page * PAGE_SIZE,
+  );
+
+  const handleSearchChange = useCallback((value: string) => {
+    setSearchQuery(value);
+    setPage(1);
+  }, []);
+
+  const noSearchResults = !isLoading && !isEmpty && filteredMedications.length === 0;
+
   return (
     <>
       <main className="flex flex-1 flex-col px-5 lg:px-8 pt-6 lg:pt-8 pb-[calc(7rem+env(safe-area-inset-bottom))] lg:pb-10 lg:max-w-6xl lg:mx-auto lg:w-full">
@@ -218,19 +249,80 @@ export function CaregiverMedicationsScreen({
           </div>
         )}
 
-        {/* Populated list */}
+        {/* Search */}
         {!isLoading && !isEmpty && (
-          <ul aria-label="Lista de medicamentos" className="mb-4 rounded-2xl border border-gray-200 shadow-sm px-4">
-            {medications.map((med) => (
-              <MedicationListItem
-                key={med.id}
-                medication={med}
-                onLog={onLog}
-                onViewHistory={onViewHistory}
-                isLogging={loggingId === med.id}
-              />
-            ))}
-          </ul>
+          <div className="relative mb-4">
+            <Search
+              className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"
+              aria-hidden="true"
+            />
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={(e) => handleSearchChange(e.target.value)}
+              placeholder="Buscar medicamento"
+              aria-label="Buscar medicamento"
+              className="w-full rounded-2xl border border-gray-200 bg-white py-3 pl-11 pr-4 text-sm text-brand-dark placeholder:text-gray-400 transition-colors focus:outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20"
+            />
+          </div>
+        )}
+
+        {/* No search results */}
+        {noSearchResults && (
+          <div className="flex flex-col items-center gap-2 py-12 text-center animate-fade-up">
+            <p className="text-sm font-semibold text-brand-dark">
+              Sin resultados para "{searchQuery}"
+            </p>
+            <p className="text-xs text-gray-text">Intenta con otro nombre.</p>
+          </div>
+        )}
+
+        {/* Populated list */}
+        {!isLoading && !isEmpty && !noSearchResults && (
+          <>
+            <ul aria-label="Lista de medicamentos" className="mb-4 rounded-2xl border border-gray-200 shadow-sm px-4">
+              {pagedMedications.map((med) => (
+                <MedicationListItem
+                  key={med.id}
+                  medication={med}
+                  onLog={onLog}
+                  onViewHistory={onViewHistory}
+                  isLogging={loggingId === med.id}
+                />
+              ))}
+            </ul>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="mb-4 flex items-center justify-between">
+                <button
+                  type="button"
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                  aria-label="Página anterior"
+                  className="flex items-center gap-1 rounded-xl px-3 py-2 text-sm font-semibold text-brand-primary disabled:cursor-not-allowed disabled:opacity-40 hover:bg-brand-primary-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
+                >
+                  <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+                  Anterior
+                </button>
+
+                <span className="text-xs font-medium text-gray-text">
+                  Página {page} de {totalPages}
+                </span>
+
+                <button
+                  type="button"
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={page === totalPages}
+                  aria-label="Página siguiente"
+                  className="flex items-center gap-1 rounded-xl px-3 py-2 text-sm font-semibold text-brand-primary disabled:cursor-not-allowed disabled:opacity-40 hover:bg-brand-primary-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
+                >
+                  Siguiente
+                  <ChevronRight className="h-4 w-4" aria-hidden="true" />
+                </button>
+              </div>
+            )}
+          </>
         )}
 
         {/* FAB-style primary CTA — only visible when list is populated */}

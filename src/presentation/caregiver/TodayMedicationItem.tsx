@@ -1,8 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Pill } from 'lucide-react';
+import Link from 'next/link';
+import { Pill, ChevronRight } from 'lucide-react';
 import { cn } from '@/shared/lib/cn';
+import { routes } from '@/core/routing/routes';
 import type { TodayMedication, MedicationStatus } from '@/domain/caregiver/caregiver.types';
 
 /**
@@ -74,7 +76,10 @@ export function TodayMedicationItem({ medication }: TodayMedicationItemProps) {
   const countdown = nextDoseAt ? formatNextDoseCountdown(nextDoseAt, now) : null;
 
   return (
-    <div className="flex items-center gap-3 py-3">
+    <Link
+      href={routes.caregiverMeds()}
+      className="flex items-center gap-3 py-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 rounded-lg"
+    >
       {/* Icon */}
       <div
         className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-primary-light text-brand-primary"
@@ -105,6 +110,8 @@ export function TodayMedicationItem({ medication }: TodayMedicationItemProps) {
           Ahora
         </span>
       )}
-    </div>
+
+      <ChevronRight className="h-4 w-4 shrink-0 text-gray-400" aria-hidden="true" />
+    </Link>
   );
 }
