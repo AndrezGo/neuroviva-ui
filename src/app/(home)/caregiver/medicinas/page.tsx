@@ -22,6 +22,9 @@ export default function CaregiverMedicinasPage() {
     logMedication,
     loggingId,
     logError,
+    discontinueMedication,
+    discontinuingId,
+    discontinueError,
   } = useCaregiverMedications();
 
   const handleAdd = useCallback(() => {
@@ -31,6 +34,13 @@ export default function CaregiverMedicinasPage() {
   const handleViewHistory = useCallback(
     (id: string) => {
       router.push(routes.caregiverMedHistory(id));
+    },
+    [router],
+  );
+
+  const handleEdit = useCallback(
+    (id: string) => {
+      router.push(routes.caregiverMedEdit(id));
     },
     [router],
   );
@@ -48,6 +58,10 @@ export default function CaregiverMedicinasPage() {
         onViewHistory={handleViewHistory}
         loggingId={loggingId}
         logError={logError}
+        onEdit={handleEdit}
+        onDiscontinue={discontinueMedication}
+        discontinuingId={discontinuingId}
+        discontinueError={discontinueError}
       />
     </CaregiverShell>
   );

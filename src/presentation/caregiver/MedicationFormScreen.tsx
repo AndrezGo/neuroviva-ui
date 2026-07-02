@@ -6,43 +6,67 @@ import { BackButton } from '@/presentation/ui/BackButton';
 import { TextField } from '@/presentation/ui/TextField';
 import { Button } from '@/presentation/ui/Button';
 import { Textarea } from '@/presentation/ui/Textarea';
-import { medicationSchema, type MedicationFormValues } from '@/application/caregiver/caregiverSchemas';
+import {
+  medicationSchema,
+  medicationEditSchema,
+  type MedicationFormValues,
+} from '@/application/caregiver/caregiverSchemas';
 
 interface MedicationFormScreenProps {
+  mode: 'create' | 'edit';
   onSubmit: (values: MedicationFormValues) => Promise<boolean>;
   isSubmitting: boolean;
   submitError: string | null;
+  initialValues?: Partial<MedicationFormValues>;
 }
 
 /**
- * Pure UI form screen for creating a new medication.
+ * Pure UI form screen for creating or editing a medication.
  * Owns its own RHF instance; the page wires in onSubmit and navigation.
+ * Mode determines the resolver, heading, and button label.
  */
 export function MedicationFormScreen({
+  mode,
   onSubmit,
   isSubmitting,
   submitError,
+  initialValues,
 }: MedicationFormScreenProps) {
+  const baseDefaults: MedicationFormValues = {
+    name: '',
+    dose: '',
+    frequency: '',
+    startDate: '',
+    endDate: '',
+    prescribingDoctorName: '',
+    notes: '',
+  };
+
+  // Merge base defaults with initialValues; coerce null → '' for controlled inputs.
+  const mergedDefaults: MedicationFormValues = {
+    ...baseDefaults,
+    ...initialValues,
+    // Ensure nullable API fields never reach RHF as null (would make inputs uncontrolled)
+    startDate: initialValues?.startDate ?? '',
+    endDate: initialValues?.endDate ?? '',
+    prescribingDoctorName: initialValues?.prescribingDoctorName ?? '',
+    notes: initialValues?.notes ?? '',
+  };
+
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<MedicationFormValues>({
-    resolver: zodResolver(medicationSchema),
-    defaultValues: {
-      name: '',
-      dose: '',
-      frequency: '',
-      startDate: '',
-      endDate: '',
-      prescribingDoctorName: '',
-      notes: '',
-    },
+    resolver: zodResolver(mode === 'edit' ? medicationEditSchema : medicationSchema),
+    defaultValues: mergedDefaults,
   });
 
   const onFormSubmit = handleSubmit(async (values) => {
     await onSubmit(values);
   });
+
+  const isEdit = mode === 'edit';
 
   return (
     <div className="flex flex-1 flex-col px-6 py-6">
@@ -52,7 +76,7 @@ export function MedicationFormScreen({
       </div>
 
       <h1 className="text-2xl font-black tracking-tight text-brand-dark mb-8">
-        Nuevo medicamento
+        {isEdit ? 'Editar medicamento' : 'Nuevo medicamento'}
       </h1>
 
       <form
@@ -93,7 +117,7 @@ export function MedicationFormScreen({
         />
 
         <TextField
-          label="Fecha inicio (opcional)"
+          label={isEdit ? 'Fecha inicio' : 'Fecha inicio (opcional)'}
           type="date"
           error={errors.startDate?.message}
           {...register('startDate')}
@@ -131,7 +155,7 @@ export function MedicationFormScreen({
           fullWidth
           isLoading={isSubmitting}
         >
-          Guardar medicamento
+          {isEdit ? 'Guardar cambios' : 'Guardar medicamento'}
         </Button>
       </form>
     </div>

@@ -21,6 +21,12 @@ export const medicationSchema = z.object({
 
 export type MedicationFormValues = z.infer<typeof medicationSchema>;
 
+export const medicationEditSchema = medicationSchema.extend({
+  startDate: z.string().min(1, 'La fecha de inicio es obligatoria'),
+});
+
+export type MedicationEditFormValues = z.infer<typeof medicationEditSchema>;
+
 export const appointmentSchema = z.object({
   title: z
     .string()

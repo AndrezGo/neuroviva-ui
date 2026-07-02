@@ -28,6 +28,7 @@ export const routes = {
   caregiverMeds: () => '/caregiver/medicinas' as const,
   caregiverMedsNew: () => '/caregiver/medicinas/nuevo' as const,
   caregiverMedHistory: (id: string) => `/caregiver/medicinas/${id}/historial` as const,
+  caregiverMedEdit: (id: string) => `/caregiver/medicinas/${id}/editar` as const,
   caregiverSymptoms: () => '/caregiver/sintomas' as const,
   caregiverAgenda: () => '/caregiver/agenda' as const,
   caregiverAgendaNew: () => '/caregiver/agenda/nueva' as const,

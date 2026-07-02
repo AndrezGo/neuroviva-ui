@@ -3,6 +3,7 @@
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import { Pill, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/presentation/ui/Button';
+import { Sheet } from '@/presentation/ui/Sheet';
 import { CaregiverTabBar } from './CaregiverTabBar';
 import { cn } from '@/shared/lib/cn';
 import { LogIntakeSheet } from './LogIntakeSheet';
@@ -17,6 +18,9 @@ interface MedicationListItemProps {
   onLog: (id: string, notes?: string) => Promise<boolean>;
   onViewHistory: (id: string) => void;
   isLogging: boolean;
+  onEdit: (id: string) => void;
+  onDiscontinue: (id: string) => Promise<boolean>;
+  isDiscontinuing: boolean;
 }
 
 function MedicationListItem({
@@ -24,8 +28,12 @@ function MedicationListItem({
   onLog,
   onViewHistory,
   isLogging,
+  onEdit,
+  onDiscontinue,
+  isDiscontinuing,
 }: MedicationListItemProps) {
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [discontinueConfirmOpen, setDiscontinueConfirmOpen] = useState(false);
 
   const handleConfirm = useCallback(
     async (notes?: string) => {
@@ -34,6 +42,11 @@ function MedicationListItem({
     },
     [onLog, medication.id],
   );
+
+  const handleDiscontinueConfirm = useCallback(async () => {
+    const success = await onDiscontinue(medication.id);
+    if (success) setDiscontinueConfirmOpen(false);
+  }, [onDiscontinue, medication.id]);
 
   return (
     <>
@@ -84,13 +97,33 @@ function MedicationListItem({
 
           {/* Action zone */}
           <div className="flex flex-col gap-2 sm:w-auto sm:shrink-0 sm:flex-row sm:items-center sm:gap-3">
-            <button
-              type="button"
-              onClick={() => onViewHistory(medication.id)}
-              className="self-start inline-flex items-center justify-center rounded-xl px-4 py-2.5 text-xs font-semibold text-brand-primary border border-brand-primary/25 bg-brand-primary-light hover:bg-brand-primary/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 sm:self-auto sm:w-auto"
-            >
-              Ver historial
-            </button>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => onViewHistory(medication.id)}
+                className="flex-1 inline-flex items-center justify-center rounded-xl px-4 py-2.5 text-xs font-semibold text-brand-primary border border-brand-primary/25 bg-brand-primary-light hover:bg-brand-primary/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 sm:flex-none"
+              >
+                Ver historial
+              </button>
+
+              <button
+                type="button"
+                onClick={() => onEdit(medication.id)}
+                aria-label={`Editar ${medication.name}`}
+                className="flex-1 inline-flex items-center justify-center rounded-xl px-4 py-2.5 text-xs font-semibold text-brand-dark border border-gray-200 bg-white hover:bg-gray-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 sm:flex-none"
+              >
+                Editar
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setDiscontinueConfirmOpen(true)}
+                aria-label={`Eliminar ${medication.name}`}
+                className="flex-1 inline-flex items-center justify-center rounded-xl px-4 py-2.5 text-xs font-semibold text-error border border-error-light bg-error-light hover:bg-error-light/70 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-error focus-visible:ring-offset-2 sm:flex-none"
+              >
+                Eliminar
+              </button>
+            </div>
 
             <Button
               variant="secondary"
@@ -114,6 +147,40 @@ function MedicationListItem({
         onClose={() => setSheetOpen(false)}
         onConfirm={handleConfirm}
       />
+
+      <Sheet
+        open={discontinueConfirmOpen}
+        onClose={() => setDiscontinueConfirmOpen(false)}
+        title="Eliminar medicamento"
+      >
+        <div className="flex flex-col gap-5">
+          <p className="text-sm text-gray-text">
+            ¿Estás seguro que quieres eliminar <span className="font-semibold text-brand-dark">{medication.name}</span>?
+            Se mantendrá su historial de tomas, solo dejará de aparecer como activo.
+          </p>
+
+          <div className="flex flex-col gap-3">
+            <Button
+              variant="primary"
+              size="md"
+              fullWidth
+              isLoading={isDiscontinuing}
+              onClick={handleDiscontinueConfirm}
+            >
+              Eliminar
+            </Button>
+            <Button
+              variant="secondary"
+              size="md"
+              fullWidth
+              onClick={() => setDiscontinueConfirmOpen(false)}
+              disabled={isDiscontinuing}
+            >
+              Cancelar
+            </Button>
+          </div>
+        </div>
+      </Sheet>
     </>
   );
 }
@@ -131,6 +198,10 @@ interface CaregiverMedicationsScreenProps {
   onViewHistory: (id: string) => void;
   loggingId: string | null;
   logError: string | null;
+  onEdit: (id: string) => void;
+  onDiscontinue: (id: string) => Promise<boolean>;
+  discontinuingId: string | null;
+  discontinueError: string | null;
 }
 
 /**
@@ -148,6 +219,10 @@ export function CaregiverMedicationsScreen({
   onViewHistory,
   loggingId,
   logError,
+  onEdit,
+  onDiscontinue,
+  discontinuingId,
+  discontinueError,
 }: CaregiverMedicationsScreenProps) {
   const isEmpty = !isLoading && !isError && medications.length === 0;
 
@@ -209,6 +284,16 @@ export function CaregiverMedicationsScreen({
             className="mb-4 animate-fade-in rounded-2xl border border-error-light bg-error-light px-4 py-3"
           >
             <p className="text-sm font-medium text-error">{logError}</p>
+          </div>
+        )}
+
+        {/* Discontinue error banner */}
+        {discontinueError && (
+          <div
+            role="alert"
+            className="mb-4 animate-fade-in rounded-2xl border border-error-light bg-error-light px-4 py-3"
+          >
+            <p className="text-sm font-medium text-error">{discontinueError}</p>
           </div>
         )}
 
@@ -288,6 +373,9 @@ export function CaregiverMedicationsScreen({
                   onLog={onLog}
                   onViewHistory={onViewHistory}
                   isLogging={loggingId === med.id}
+                  onEdit={onEdit}
+                  onDiscontinue={onDiscontinue}
+                  isDiscontinuing={discontinuingId === med.id}
                 />
               ))}
             </ul>

@@ -30,6 +30,7 @@ export default function CaregiverMedicinasNuevoPage() {
   return (
     <CaregiverShell activeTab="meds">
       <MedicationFormScreen
+        mode="create"
         onSubmit={handleSubmit}
         isSubmitting={isCreating}
         submitError={createError}

@@ -8,6 +8,7 @@ import type {
   CaregiverOnboardingResult,
   Medication,
   CreateMedicationInput,
+  UpdateMedicationInput,
   CreateMedicationResult,
   LogMedicationInput,
   LogMedicationResult,
@@ -84,6 +85,36 @@ export async function createMedication(
     method: 'POST',
     token,
     body: JSON.stringify(input),
+  });
+}
+
+/**
+ * Updates an existing medication record (PATCH).
+ * Returns 204 No Content on success.
+ */
+export async function updateMedication(
+  token: string,
+  medicationId: string,
+  input: UpdateMedicationInput,
+): Promise<void> {
+  await apiRequest<void>(`/api/v1/caregiver/medications/${medicationId}`, {
+    method: 'PATCH',
+    token,
+    body: JSON.stringify(input),
+  });
+}
+
+/**
+ * Soft-deletes (discontinues) a medication record (DELETE).
+ * Returns 204 No Content on success. Idempotent.
+ */
+export async function discontinueMedication(
+  token: string,
+  medicationId: string,
+): Promise<void> {
+  await apiRequest<void>(`/api/v1/caregiver/medications/${medicationId}`, {
+    method: 'DELETE',
+    token,
   });
 }
 

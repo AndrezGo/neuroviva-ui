@@ -61,6 +61,8 @@ export interface Medication {
   active: boolean;
   startDate: string | null;
   endDate: string | null;
+  prescribingDoctorName?: string | null;
+  notes?: string | null;
   createdAt: string;
   takenToday?: boolean;
 }
@@ -70,6 +72,16 @@ export interface CreateMedicationInput {
   dose: string;
   frequency: string;
   startDate?: string;
+  endDate?: string;
+  prescribingDoctorName?: string;
+  notes?: string;
+}
+
+export interface UpdateMedicationInput {
+  name: string;
+  dose: string;
+  frequency: string;
+  startDate: string;
   endDate?: string;
   prescribingDoctorName?: string;
   notes?: string;
