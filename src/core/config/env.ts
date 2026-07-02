@@ -7,8 +7,8 @@
 
 const rawUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
 const rawKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
-const rawSiteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
-const rawApiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:5073';
+const rawSiteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+const rawApiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5073';
 
 function assertRuntimeValue(value: string, name: string): string {
   if (!value || value === 'REPLACE_WITH_ANON_KEY') {

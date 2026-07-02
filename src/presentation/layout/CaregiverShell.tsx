@@ -72,7 +72,7 @@ export function CaregiverShell({ activeTab, children }: CaregiverShellProps) {
       {/* Outer background layer */}
       <div className="min-h-dvh w-full overflow-x-hidden bg-slate-100 lg:bg-transparent">
         {/* Mobile: max-w-md column. Desktop: full-width offsetting sidebar+header */}
-        <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col bg-white lg:max-w-none lg:mx-0 lg:ml-60 lg:bg-gray-50 lg:pt-16">
+        <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col bg-white lg:max-w-none lg:mx-0 lg:ml-60 lg:w-[calc(100%-15rem)] lg:bg-gray-50 lg:pt-16">
           {children}
         </div>
       </div>
