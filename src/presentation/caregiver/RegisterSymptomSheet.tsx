@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Sheet } from '@/presentation/ui/Sheet';
 import { Button } from '@/presentation/ui/Button';
 import { Textarea } from '@/presentation/ui/Textarea';
@@ -37,6 +37,8 @@ interface RegisterSymptomSheetProps {
   onClose: () => void;
   onSave: (type: string, intensity: number, description?: string) => void;
   onClearError: () => void;
+  mode?: 'create' | 'edit';
+  initialValues?: { type: string; intensity: number; description?: string | null };
 }
 
 // ── Component ─────────────────────────────────────────────────────────────────
@@ -48,10 +50,28 @@ export function RegisterSymptomSheet({
   onClose,
   onSave,
   onClearError,
+  mode = 'create',
+  initialValues,
 }: RegisterSymptomSheetProps) {
   const [type, setType] = useState('');
   const [intensity, setIntensity] = useState<number | null>(null);
   const [description, setDescription] = useState('');
+
+  // Seed or reset state whenever the sheet opens (or the target row changes).
+  useEffect(() => {
+    if (open) {
+      if (mode === 'edit' && initialValues) {
+        setType(initialValues.type);
+        setIntensity(initialValues.intensity);
+        setDescription(initialValues.description ?? '');
+      } else {
+        setType('');
+        setIntensity(null);
+        setDescription('');
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, initialValues]);
 
   const handleClose = () => {
     setType('');
@@ -75,8 +95,15 @@ export function RegisterSymptomSheet({
     setIntensity(n);
   };
 
+  const title = mode === 'edit' ? 'Editar síntoma' : 'Registrar síntoma';
+  const saveLabel = isSaving
+    ? 'Guardando...'
+    : mode === 'edit'
+    ? 'Guardar cambios'
+    : 'Guardar';
+
   return (
-    <Sheet open={open} onClose={handleClose} title="Registrar síntoma">
+    <Sheet open={open} onClose={handleClose} title={title}>
       <div className="space-y-5">
         {/* Error banner */}
         {error && (
@@ -165,7 +192,7 @@ export function RegisterSymptomSheet({
             onClick={handleSave}
             disabled={isSaving || !type || intensity === null}
           >
-            {isSaving ? 'Guardando...' : 'Guardar'}
+            {saveLabel}
           </Button>
         </div>
       </div>

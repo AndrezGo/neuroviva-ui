@@ -19,6 +19,7 @@ import type {
   AppointmentOutcome,
   Symptom,
   CreateSymptomPayload,
+  UpdateSymptomPayload,
   HistoryEvent,
   CreateHistoryNoteInput,
   CreateHistoryNoteResult,
@@ -217,6 +218,36 @@ export async function registerSymptom(
     method: 'POST',
     token,
     body: JSON.stringify(payload),
+  });
+}
+
+/**
+ * Updates an existing symptom record (PATCH).
+ * Returns 204 No Content on success.
+ */
+export async function updateSymptom(
+  token: string,
+  symptomId: string,
+  payload: UpdateSymptomPayload,
+): Promise<void> {
+  await apiRequest<void>(`/api/v1/caregiver/symptoms/${symptomId}`, {
+    method: 'PATCH',
+    token,
+    body: JSON.stringify(payload),
+  });
+}
+
+/**
+ * Soft-deletes a symptom record (DELETE).
+ * Returns 204 No Content on success. Idempotent.
+ */
+export async function deleteSymptom(
+  token: string,
+  symptomId: string,
+): Promise<void> {
+  await apiRequest<void>(`/api/v1/caregiver/symptoms/${symptomId}`, {
+    method: 'DELETE',
+    token,
   });
 }
 

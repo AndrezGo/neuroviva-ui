@@ -147,6 +147,12 @@ export interface CreateSymptomPayload {
   loggedAt?: string | null;
 }
 
+export interface UpdateSymptomPayload {
+  type: string;
+  intensity: number;
+  description?: string | null;
+}
+
 // ── Notifications ────────────────────────────────────────────────────────────
 
 export interface AppNotification {
