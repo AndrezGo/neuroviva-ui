@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import { Paperclip, X } from 'lucide-react';
 import { Sheet } from '@/presentation/ui/Sheet';
 import { Button } from '@/presentation/ui/Button';
 import { Textarea } from '@/presentation/ui/Textarea';
@@ -23,7 +24,7 @@ interface AddHistoryNoteSheetProps {
   isSaving: boolean;
   error: string | null;
   onClose: () => void;
-  onSave: (input: { eventType: string; description: string; eventDate?: string | null }) => void;
+  onSave: (input: { eventType: string; description: string; eventDate?: string | null; attachment?: File | null }) => void;
   onClearError: () => void;
 }
 
@@ -40,11 +41,15 @@ export function AddHistoryNoteSheet({
   const [eventType, setEventType] = useState('');
   const [description, setDescription] = useState('');
   const [eventDate, setEventDate] = useState('');
+  const [file, setFile] = useState<File | null>(null);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleClose = () => {
     setEventType('');
     setDescription('');
     setEventDate('');
+    setFile(null);
     onClose();
   };
 
@@ -54,6 +59,7 @@ export function AddHistoryNoteSheet({
       eventType,
       description: description.trim(),
       eventDate: eventDate ? new Date(eventDate).toISOString() : null,
+      attachment: file || null,
     });
   };
 
@@ -65,6 +71,18 @@ export function AddHistoryNoteSheet({
   const handleChangeDescription = (value: string) => {
     if (error) onClearError();
     setDescription(value);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (error) onClearError();
+    setFile(e.target.files?.[0] ?? null);
+    // Reset the input value so the same file can be re-selected after clearing
+    e.target.value = '';
+  };
+
+  const handleClearFile = () => {
+    setFile(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   return (
@@ -124,6 +142,54 @@ export function AddHistoryNoteSheet({
             value={eventDate}
             onChange={(e) => setEventDate(e.target.value)}
           />
+        </div>
+
+        {/* File attachment */}
+        <div>
+          <p className="mb-2 text-sm font-semibold text-brand-dark">
+            Adjuntar imagen o archivo (opcional)
+          </p>
+
+          {/* Hidden native file input */}
+          <input
+            ref={fileInputRef}
+            id="history-note-attachment"
+            type="file"
+            accept="image/*,.pdf"
+            className="sr-only"
+            onChange={handleFileChange}
+            tabIndex={-1}
+            aria-hidden="true"
+          />
+
+          {file ? (
+            /* File selected — show filename + clear button */
+            <div className="flex items-center gap-2 rounded-2xl border border-gray-200 bg-white px-4 py-3.5">
+              <Paperclip className="h-4 w-4 shrink-0 text-brand-primary" aria-hidden="true" />
+              <span className="flex-1 truncate text-sm text-brand-dark">{file.name}</span>
+              <button
+                type="button"
+                aria-label="Quitar archivo"
+                onClick={handleClearFile}
+                className="shrink-0 rounded-lg p-0.5 text-gray-text hover:text-error focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary transition-colors"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          ) : (
+            /* No file selected — styled trigger label */
+            <label
+              htmlFor="history-note-attachment"
+              className="flex cursor-pointer items-center gap-2 rounded-2xl border border-gray-200 bg-white px-4 py-3.5 transition-colors hover:border-brand-primary/50 focus-within:ring-2 focus-within:ring-brand-primary"
+            >
+              <Paperclip className="h-4 w-4 shrink-0 text-gray-text" aria-hidden="true" />
+              <span className="text-sm text-gray-text">Seleccionar archivo…</span>
+            </label>
+          )}
+
+          <p className="mt-1.5 text-xs text-gray-text">
+            Formatos: JPG, PNG, WEBP o PDF. Máximo 10MB.
+          </p>
         </div>
 
         {/* Footer */}

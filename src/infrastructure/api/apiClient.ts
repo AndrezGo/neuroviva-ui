@@ -41,10 +41,15 @@ export async function apiRequest<T>(
   const { token, headers: extraHeaders, ...fetchOptions } = options;
 
   const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
     ...extraHeaders,
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
   };
+
+  // Let the browser set its own Content-Type (with boundary) for FormData.
+  // For all other body types keep the JSON header so existing callers are unaffected.
+  if (!(fetchOptions.body instanceof FormData)) {
+    headers['Content-Type'] = 'application/json';
+  }
 
   const res = await fetch(`${env.apiBaseUrl}${path}`, {
     ...fetchOptions,

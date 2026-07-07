@@ -261,10 +261,16 @@ export async function addHistoryNote(
   token: string,
   input: CreateHistoryNoteInput,
 ): Promise<CreateHistoryNoteResult> {
+  const formData = new FormData();
+  formData.append('EventType', input.eventType);
+  formData.append('Description', input.description);
+  if (input.eventDate) formData.append('EventDate', input.eventDate);
+  if (input.attachment) formData.append('Attachment', input.attachment);
+
   return apiRequest<CreateHistoryNoteResult>('/api/v1/caregiver/history', {
     method: 'POST',
     token,
-    body: JSON.stringify(input),
+    body: formData,
   });
 }
 

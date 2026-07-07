@@ -172,12 +172,15 @@ export interface HistoryEvent {
   description?: string | null;
   eventDate: string; // ISO 8601
   status?: string | null; // present only for appointment-type events
+  attachmentUrl?: string | null; // short-lived signed URL, freshly minted each fetch
+  attachmentFileName?: string | null; // original filename for display
 }
 
 export interface CreateHistoryNoteInput {
   eventType: string; // "consultation" | "exam" | "note" | "other"
   description: string;
   eventDate?: string | null; // optional; backend uses "now" if omitted
+  attachment?: File | null; // optional browser File for multipart upload
 }
 
 export interface CreateHistoryNoteResult {

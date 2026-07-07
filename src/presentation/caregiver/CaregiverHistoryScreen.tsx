@@ -1,6 +1,6 @@
 'use client';
 
-import { Activity, Calendar, ClipboardList, FileText, Pill } from 'lucide-react';
+import { Activity, Calendar, ClipboardList, FileText, Paperclip, Pill } from 'lucide-react';
 import { Button } from '@/presentation/ui/Button';
 import { CaregiverTabBar } from './CaregiverTabBar';
 import { AddHistoryNoteSheet } from './AddHistoryNoteSheet';
@@ -89,7 +89,7 @@ interface CaregiverHistoryScreenProps {
   onAddNote: () => void;
   addNoteSheetOpen: boolean;
   onCloseAddNote: () => void;
-  onSaveNote: (input: { eventType: string; description: string; eventDate?: string | null }) => void;
+  onSaveNote: (input: { eventType: string; description: string; eventDate?: string | null; attachment?: File | null }) => void;
   isSaving: boolean;
   saveError: string | null;
   onClearSaveError: () => void;
@@ -231,6 +231,18 @@ export function CaregiverHistoryScreen({
                       <p className="mt-1 text-xs text-gray-text line-clamp-2">
                         {event.description}
                       </p>
+                    )}
+                    {event.attachmentUrl && (
+                      <a
+                        href={event.attachmentUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="mt-1 inline-flex items-center gap-1 text-xs font-medium text-brand-primary"
+                      >
+                        <Paperclip className="h-3.5 w-3.5" aria-hidden="true" />
+                        {event.attachmentFileName ?? 'Ver archivo adjunto'}
+                      </a>
                     )}
                   </div>
                 </li>

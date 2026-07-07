@@ -25,7 +25,7 @@ export default function CaregiverHistoriaPage() {
   }, [resetError]);
 
   const onSaveNote = useCallback(
-    async (input: { eventType: string; description: string; eventDate?: string | null }) => {
+    async (input: { eventType: string; description: string; eventDate?: string | null; attachment?: File | null }) => {
       const ok = await addNote(input);
       if (ok) {
         setAddNoteSheetOpen(false);
