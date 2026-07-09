@@ -28,7 +28,7 @@ export async function submitPatientOnboarding(
   token: string,
   payload: PatientOnboardingPayload,
 ): Promise<void> {
-  await apiRequest<void>('/api/v1/patient/onboarding', {
+  await apiRequest<void>('/api/v1/patient/claim', {
     method: 'POST',
     token,
     body: JSON.stringify(payload),
