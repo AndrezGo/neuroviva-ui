@@ -8,7 +8,7 @@ import { PatientHomeScreen } from '@/presentation/patient/PatientHomeScreen';
  */
 export default function PatientHomePage() {
   return (
-    <PatientShell>
+    <PatientShell activeTab="home">
       <PatientHomeScreen />
     </PatientShell>
   );

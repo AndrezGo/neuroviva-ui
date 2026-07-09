@@ -3,17 +3,20 @@
 import { useAuthStore } from '@/shared/store/useAuthStore';
 import { useSignOut } from '@/application/auth/useSignOut';
 import { getFirstName, getGreeting } from '@/shared/lib/greeting';
+import { PatientTabBar } from '@/presentation/patient/PatientTabBar';
+import type { PatientTab } from '@/presentation/patient/PatientTabBar';
 
 interface PatientShellProps {
   children: React.ReactNode;
+  activeTab: PatientTab;
 }
 
 /**
  * Minimal shell for the Patient section.
  * Mobile-first: centered max-w-md column on a light background.
- * Includes a greeting header and a sign-out button.
+ * Includes a greeting header, a sign-out button, and the fixed bottom tab bar.
  */
-export function PatientShell({ children }: PatientShellProps) {
+export function PatientShell({ children, activeTab }: PatientShellProps) {
   const backendUser = useAuthStore((s) => s.backendUser);
   const user = useAuthStore((s) => s.user);
 
@@ -44,9 +47,11 @@ export function PatientShell({ children }: PatientShellProps) {
         </header>
 
         {/* Page content */}
-        <main className="flex flex-1 flex-col">
+        <main className="flex flex-1 flex-col pb-24">
           {children}
         </main>
+
+        <PatientTabBar activeTab={activeTab} />
       </div>
     </div>
   );

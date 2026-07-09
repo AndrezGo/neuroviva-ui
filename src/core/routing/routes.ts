@@ -12,13 +12,16 @@ export const routes = {
   // Role-specific home screens
   homeCaregiver: () => '/caregiver' as const,
   homeDoctor: () => '/doctor' as const,
-  homePatient: () => '/patient' as const,
   // Doctor tab routes
   doctorAlerts: () => '/doctor/alertas' as const,
   doctorCuraduria: () => '/doctor/curaduria' as const,
   doctorProfile: () => '/doctor/perfil' as const,
   // Patient home (new shell-based route)
   patientHome: () => '/paciente' as const,
+  patientNews: () => '/paciente/noticias' as const,
+  patientChannels: () => '/paciente/canales' as const,
+  patientCommunity: () => '/paciente/comunidad' as const,
+  patientArticles: () => '/paciente/articulos' as const,
   // Onboarding flows
   onboardingCaregiver: () => '/onboarding/caregiver' as const,
   onboardingPatient: () => '/onboarding/paciente' as const,
