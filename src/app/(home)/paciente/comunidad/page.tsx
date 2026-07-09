@@ -1,12 +1,12 @@
 'use client';
 
 import { PatientShell } from '@/presentation/layout/PatientShell';
-import { PatientComingSoonScreen } from '@/presentation/patient/PatientComingSoonScreen';
+import { PatientCommunityScreen } from '@/presentation/patient/PatientCommunityScreen';
 
 export default function PatientCommunityPage() {
   return (
     <PatientShell activeTab="community">
-      <PatientComingSoonScreen title="Comunidad" />
+      <PatientCommunityScreen />
     </PatientShell>
   );
 }

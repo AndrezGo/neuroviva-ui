@@ -21,6 +21,7 @@ export const routes = {
   patientNews: () => '/paciente/noticias' as const,
   patientChannels: () => '/paciente/canales' as const,
   patientCommunity: () => '/paciente/comunidad' as const,
+  patientGroupFeed: (groupId: string) => `/paciente/comunidad/${groupId}` as const,
   patientArticles: () => '/paciente/articulos' as const,
   // Onboarding flows
   onboardingCaregiver: () => '/onboarding/caregiver' as const,
