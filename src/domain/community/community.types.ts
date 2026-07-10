@@ -120,3 +120,22 @@ export interface CreateCommentResult {
 export interface AddReactionResult {
   reactionId: string;
 }
+
+/** Visibility setting for a community group. */
+export type GroupVisibility = 'public' | 'private';
+
+/** Body sent to POST /api/v1/curator/community/groups */
+export interface CreateGroupInput {
+  name: string;
+  /** Must match ^[a-z0-9-]{3,60}$ — validated backend-side and enforced client-side. */
+  slug: string;
+  description?: string | null;
+  avatarUrl?: string | null;
+  visibility?: GroupVisibility;
+  diseaseId?: string | null;
+}
+
+/** Response body from POST /api/v1/curator/community/groups */
+export interface CreateGroupResult {
+  groupId: string;
+}

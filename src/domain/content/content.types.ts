@@ -55,3 +55,11 @@ export interface CreateResourceInput {
 export interface CreateResourceResult {
   resourceId: string;
 }
+
+/** DTO returned by GET /api/v1/curator/diseases */
+export interface Disease {
+  id: string;
+  name: string;
+  slug: string;
+  category: string | null;
+}

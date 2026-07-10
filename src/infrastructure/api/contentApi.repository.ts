@@ -7,6 +7,7 @@ import type {
   CreateResourceInput,
   CreateResourceResult,
   ResourceRequestType,
+  Disease,
 } from '@/domain/content/content.types';
 
 /**
@@ -69,4 +70,13 @@ export async function rejectResource(token: string, id: string): Promise<void> {
     method: 'POST',
     token,
   });
+}
+
+/**
+ * Fetches the full list of diseases for use in curation selectors.
+ * Small cacheable list — no query params needed.
+ * Gated by ScientificCommittee policy (same token used by other curator calls).
+ */
+export async function getDiseases(token: string): Promise<Disease[]> {
+  return apiRequest<Disease[]>('/api/v1/curator/diseases', { method: 'GET', token });
 }

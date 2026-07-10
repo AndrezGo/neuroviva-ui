@@ -11,6 +11,8 @@ import type {
   CreateCommentResult,
   AddReactionResult,
   ReactionType,
+  CreateGroupInput,
+  CreateGroupResult,
 } from '@/domain/community/community.types';
 
 /**
@@ -121,4 +123,20 @@ export async function removeReaction(
     `/api/v1/patient/community/posts/${postId}/reactions/${type}`,
     { method: 'DELETE', token },
   );
+}
+
+/**
+ * Creates a new community group (curator/admin action).
+ * Backend validation: name 1–120 chars; slug ^[a-z0-9-]{3,60}$; visibility "public"|"private".
+ * Returns { groupId } on success; throws ApiError(409) on duplicate slug.
+ */
+export async function createGroup(
+  token: string,
+  input: CreateGroupInput,
+): Promise<CreateGroupResult> {
+  return apiRequest<CreateGroupResult>('/api/v1/curator/community/groups', {
+    method: 'POST',
+    token,
+    body: JSON.stringify(input),
+  });
 }

@@ -27,6 +27,10 @@ export const routes = {
   onboardingCaregiver: () => '/onboarding/caregiver' as const,
   onboardingPatient: () => '/onboarding/paciente' as const,
   onboardingDoctor: () => '/onboarding/doctor' as const,
+  // Admin routes
+  homeAdmin: () => '/admin' as const,
+  adminContent: () => '/admin' as const,
+  adminCommunity: () => '/admin/comunidad' as const,
   // Caregiver tab routes
   caregiverHome: () => '/caregiver' as const,
   caregiverMeds: () => '/caregiver/medicinas' as const,
@@ -55,6 +59,8 @@ export function getHomeByRole(role: string): string {
       return routes.homeDoctor();
     case 'paciente':
       return routes.patientHome();
+    case 'admin':
+      return routes.homeAdmin();
     default:
       return routes.roleSelection();
   }
