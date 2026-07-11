@@ -2,7 +2,8 @@
 
 import { useAuthStore } from '@/shared/store/useAuthStore';
 import { useSignOut } from '@/application/auth/useSignOut';
-import { getFirstName, getGreeting } from '@/shared/lib/greeting';
+import { getFirstName } from '@/shared/lib/greeting';
+import { useGreeting } from '@/application/shared/useGreeting';
 import { PatientTabBar } from '@/presentation/patient/PatientTabBar';
 import { PatientDesktopSidebar } from './PatientDesktopSidebar';
 import { PatientDesktopHeader } from './PatientDesktopHeader';
@@ -33,7 +34,7 @@ export function PatientShell({ children, activeTab }: PatientShellProps) {
 
   const firstName = getFirstName(backendUser?.name ?? user?.fullName);
   const email = backendUser?.email ?? user?.email ?? '';
-  const greeting = getGreeting();
+  const greeting = useGreeting();
 
   const { signOut, isLoading: isSigningOut } = useSignOut();
 

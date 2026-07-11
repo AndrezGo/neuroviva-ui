@@ -3,7 +3,8 @@
 import { PatientShell } from '@/presentation/layout/PatientShell';
 import { PatientHomeScreen } from '@/presentation/patient/PatientHomeScreen';
 import { useAuthStore } from '@/shared/store/useAuthStore';
-import { getGreeting, getFirstName } from '@/shared/lib/greeting';
+import { getFirstName } from '@/shared/lib/greeting';
+import { useGreeting } from '@/application/shared/useGreeting';
 
 /**
  * Patient home page — thin page that wires the shell and screen together.
@@ -14,7 +15,7 @@ export default function PatientHomePage() {
   const user = useAuthStore((s) => s.user);
 
   const firstName = getFirstName(backendUser?.name ?? user?.fullName);
-  const greeting = getGreeting();
+  const greeting = useGreeting();
 
   return (
     <PatientShell activeTab="home">

@@ -6,7 +6,8 @@ import { useCaregiverHome } from '@/application/caregiver/useCaregiverHome';
 import { useAuthStore } from '@/shared/store/useAuthStore';
 import { useSignOut } from '@/application/auth/useSignOut';
 import { useNotificationsStore } from '@/shared/store/useNotificationsStore';
-import { getGreeting, getFirstName } from '@/shared/lib/greeting';
+import { getFirstName } from '@/shared/lib/greeting';
+import { useGreeting } from '@/application/shared/useGreeting';
 import { CaregiverHomeScreen } from '@/presentation/caregiver/CaregiverHomeScreen';
 import { CaregiverShell } from '@/presentation/layout/CaregiverShell';
 import { routes } from '@/core/routing/routes';
@@ -30,7 +31,7 @@ export default function CaregiverHomePage() {
   const user = useAuthStore((s) => s.user);
 
   const firstName = getFirstName(backendUser?.name ?? user?.fullName);
-  const greeting = getGreeting();
+  const greeting = useGreeting();
 
   const {
     patient,
