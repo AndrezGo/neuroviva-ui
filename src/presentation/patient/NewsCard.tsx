@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { Newspaper, ExternalLink } from 'lucide-react';
 import type { PatientResource } from '@/domain/content/content.types';
 import { formatRelativeTime } from '@/shared/lib/relativeTime';
@@ -25,9 +26,15 @@ function formatDate(iso: string): string {
  * title, description, date, and optional primary CTA link.
  */
 export function NewsCard({ resource }: NewsCardProps) {
-  const dateText = resource.publishedAt
-    ? formatRelativeTime(resource.publishedAt)
-    : formatDate(resource.createdAt);
+  const [dateText, setDateText] = useState<string>(
+    resource.publishedAt ? formatDate(resource.publishedAt) : formatDate(resource.createdAt),
+  );
+
+  useEffect(() => {
+    if (resource.publishedAt) {
+      setDateText(formatRelativeTime(resource.publishedAt));
+    }
+  }, [resource.publishedAt]);
 
   return (
     <article className="rounded-2xl border border-gray-200 bg-white px-4 py-4 shadow-sm">
