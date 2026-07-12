@@ -16,10 +16,12 @@ export interface UsePatientFeedReturn {
 
 /**
  * Fetches the patient content feed for a given resource type.
- * Switching `type` triggers a fresh fetch (type is a dependency).
+ * Switching `type` or `lang` triggers a fresh fetch (both are dependencies).
+ * `lang` is optional; when omitted no lang query param is sent (backend defaults to 'es').
+ * Only meaningful for scientific_article — news/video callers can omit it safely.
  * Mirrors the fetch pattern from useCaregiverSymptoms.
  */
-export function usePatientFeed(type: ResourceRequestType): UsePatientFeedReturn {
+export function usePatientFeed(type: ResourceRequestType, lang?: 'es' | 'en'): UsePatientFeedReturn {
   const [resources, setResources] = useState<PatientResource[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
@@ -48,7 +50,7 @@ export function usePatientFeed(type: ResourceRequestType): UsePatientFeedReturn 
           return;
         }
 
-        const data = await getPatientResources(token, type);
+        const data = await getPatientResources(token, type, lang);
 
         if (!active.current) return;
         setResources(data);
@@ -66,7 +68,7 @@ export function usePatientFeed(type: ResourceRequestType): UsePatientFeedReturn 
         }
       }
     },
-    [type],
+    [type, lang],
   );
 
   useEffect(() => {

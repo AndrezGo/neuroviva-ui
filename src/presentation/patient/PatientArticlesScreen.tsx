@@ -14,10 +14,21 @@ const PAGE_SIZE = 5;
  * renders only the scrollable inner content.
  */
 export function PatientArticlesScreen() {
-  const { resources, isLoading, isError, error, reload } = usePatientFeed('scientific_article');
+  const [lang, setLang] = useState<'es' | 'en'>('es');
+  const { resources, isLoading, isError, error, reload } = usePatientFeed('scientific_article', lang);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [page, setPage] = useState(1);
+
+  const handleLangChange = useCallback(
+    (next: 'es' | 'en') => {
+      if (next === lang) return;
+      setLang(next);
+      setPage(1);
+      setSearchQuery('');
+    },
+    [lang],
+  );
 
   const filteredResources = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
@@ -54,6 +65,34 @@ export function PatientArticlesScreen() {
     <div className="flex flex-col gap-5 px-4 py-6">
       <h2 className="text-xl font-black tracking-tight text-brand-dark">Artículos científicos</h2>
 
+      {/* Language segmented control — always visible so the user can switch at any time */}
+      <div role="group" aria-label="Idioma de los artículos" className="flex gap-2">
+        <button
+          type="button"
+          aria-pressed={lang === 'es'}
+          onClick={() => handleLangChange('es')}
+          className={`rounded-2xl px-4 py-2 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 ${
+            lang === 'es'
+              ? 'bg-brand-primary text-white'
+              : 'bg-brand-primary-light text-brand-primary hover:opacity-80'
+          }`}
+        >
+          Español
+        </button>
+        <button
+          type="button"
+          aria-pressed={lang === 'en'}
+          onClick={() => handleLangChange('en')}
+          className={`rounded-2xl px-4 py-2 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 ${
+            lang === 'en'
+              ? 'bg-brand-primary text-white'
+              : 'bg-brand-primary-light text-brand-primary hover:opacity-80'
+          }`}
+        >
+          English
+        </button>
+      </div>
+
       {/* Error state */}
       {isError && (
         <div
@@ -85,8 +124,23 @@ export function PatientArticlesScreen() {
         </div>
       )}
 
-      {/* Empty state — no articles at all */}
-      {isEmpty && (
+      {/* Empty state — Spanish: scarce content, offer English switch */}
+      {isEmpty && lang === 'es' && (
+        <div className="flex flex-col items-center gap-3 py-12 text-center">
+          <p className="text-sm font-semibold text-brand-dark">
+            Hay pocos estudios en español para tu condición.
+          </p>
+          <p className="text-xs text-gray-text">
+            La mayor parte de la investigación neurocientífica se publica en inglés.
+          </p>
+          <Button variant="primary" size="sm" onClick={() => handleLangChange('en')}>
+            Ver artículos en inglés
+          </Button>
+        </div>
+      )}
+
+      {/* Empty state — English: generic message */}
+      {isEmpty && lang === 'en' && (
         <div className="flex flex-col items-center gap-3 py-12 text-center">
           <p className="text-sm text-gray-text">
             Aún no hay artículos para tu condición.

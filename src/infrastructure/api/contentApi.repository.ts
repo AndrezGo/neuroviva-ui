@@ -19,12 +19,20 @@ import type {
 /**
  * Fetches the list of resources for the authenticated patient, filtered by type.
  * Type param uses snake_case (news | scientific_article | video) as required by the backend.
+ * Optional `lang` ('es' | 'en') filters results by language; only meaningful for
+ * scientific_article — the backend silently ignores it for news and video.
+ * When `lang` is omitted the URL is byte-for-byte identical to the previous
+ * `/api/v1/patient/resources?type=${type}`, so existing callers are unaffected.
  */
 export async function getPatientResources(
   token: string,
   type: ResourceRequestType,
+  lang?: 'es' | 'en',
 ): Promise<PatientResource[]> {
-  return apiRequest<PatientResource[]>(`/api/v1/patient/resources?type=${type}`, {
+  const url = lang
+    ? `/api/v1/patient/resources?type=${type}&lang=${lang}`
+    : `/api/v1/patient/resources?type=${type}`;
+  return apiRequest<PatientResource[]>(url, {
     method: 'GET',
     token,
   });
