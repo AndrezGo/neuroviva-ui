@@ -3,7 +3,9 @@
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import { Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import { usePatientFeed } from '@/application/patient/usePatientFeed';
+import type { PatientResource } from '@/domain/content/content.types';
 import { NewsCard } from './NewsCard';
+import { NewsDetailSheet } from './NewsDetailSheet';
 import { Button } from '@/presentation/ui/Button';
 
 const PAGE_SIZE = 5;
@@ -18,6 +20,8 @@ export function PatientNewsScreen() {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [page, setPage] = useState(1);
+  const [selectedResource, setSelectedResource] = useState<PatientResource | null>(null);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
 
   const filteredResources = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
@@ -45,6 +49,15 @@ export function PatientNewsScreen() {
     setSearchQuery(value);
     setPage(1);
   }, []);
+
+  const handleSelectResource = useCallback((resource: PatientResource) => {
+    setSelectedResource(resource);
+    setIsSheetOpen(true);
+  }, []);
+
+  // Keep selectedResource set on close so the sheet content does not blank
+  // out during the exit animation — only clear the open flag.
+  const handleCloseSheet = useCallback(() => setIsSheetOpen(false), []);
 
   const isEmpty = !isLoading && !isError && resources.length === 0;
   const noSearchResults =
@@ -128,7 +141,7 @@ export function PatientNewsScreen() {
           <ul className="flex flex-col gap-3" aria-label="Lista de noticias">
             {pagedResources.map((resource) => (
               <li key={resource.id}>
-                <NewsCard resource={resource} />
+                <NewsCard resource={resource} onSelect={handleSelectResource} />
               </li>
             ))}
           </ul>
@@ -165,6 +178,13 @@ export function PatientNewsScreen() {
           )}
         </>
       )}
+
+      {/* Detail sheet — always mounted so the enter/exit animation plays */}
+      <NewsDetailSheet
+        resource={selectedResource}
+        open={isSheetOpen}
+        onClose={handleCloseSheet}
+      />
     </div>
   );
 }

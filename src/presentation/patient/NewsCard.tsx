@@ -1,12 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Newspaper, ExternalLink } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
+import { Newspaper } from 'lucide-react';
 import type { PatientResource } from '@/domain/content/content.types';
 import { formatRelativeTime } from '@/shared/lib/relativeTime';
+import { stripHtml } from '@/shared/lib/stripHtml';
 
 interface NewsCardProps {
   resource: PatientResource;
+  onSelect?: (resource: PatientResource) => void;
 }
 
 const MONTHS_ES = [
@@ -22,10 +24,11 @@ function formatDate(iso: string): string {
 
 /**
  * Pure presentational card for a patient news resource.
- * No hooks, no fetching. Renders newspaper icon tile, source badge,
- * title, description, date, and optional primary CTA link.
+ * No fetching. Renders newspaper icon tile, source badge, title, description,
+ * and date. Clicking the card fires the optional `onSelect` callback so the
+ * parent can open a detail sheet.
  */
-export function NewsCard({ resource }: NewsCardProps) {
+export function NewsCard({ resource, onSelect }: NewsCardProps) {
   const [dateText, setDateText] = useState<string>(
     resource.publishedAt ? formatDate(resource.publishedAt) : formatDate(resource.createdAt),
   );
@@ -36,53 +39,52 @@ export function NewsCard({ resource }: NewsCardProps) {
     }
   }, [resource.publishedAt]);
 
+  const strippedTitle = useMemo(() => stripHtml(resource.title), [resource.title]);
+  const strippedDescription = useMemo(
+    () => stripHtml(resource.description),
+    [resource.description],
+  );
+
   return (
-    <article className="rounded-2xl border border-gray-200 bg-white px-4 py-4 shadow-sm">
-      <div className="flex gap-3">
-        {/* Newspaper icon tile */}
-        <div
-          className="h-10 w-10 shrink-0 rounded-xl bg-brand-primary-light text-brand-primary flex items-center justify-center"
-          aria-hidden="true"
-        >
-          <Newspaper className="h-5 w-5" />
+    <article className="rounded-2xl border border-gray-200 bg-white shadow-sm transition-colors hover:border-brand-primary/40">
+      <button
+        type="button"
+        onClick={() => onSelect?.(resource)}
+        aria-label={`Abrir la noticia: ${strippedTitle}`}
+        className="w-full text-left px-4 py-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 rounded-2xl"
+      >
+        <div className="flex gap-3">
+          {/* Newspaper icon tile */}
+          <div
+            className="h-10 w-10 shrink-0 rounded-xl bg-brand-primary-light text-brand-primary flex items-center justify-center"
+            aria-hidden="true"
+          >
+            <Newspaper className="h-5 w-5" />
+          </div>
+
+          {/* Content column */}
+          <div className="flex flex-col gap-2 min-w-0">
+            {/* Source badge — only when sourceName is truthy */}
+            {resource.sourceName && (
+              <span className="inline-flex items-center self-start rounded-full bg-brand-primary-light px-2 py-0.5 text-xs font-semibold text-brand-primary">
+                {resource.sourceName}
+              </span>
+            )}
+
+            <h3 className="text-sm font-bold text-brand-dark leading-snug">
+              {strippedTitle}
+            </h3>
+
+            {strippedDescription && (
+              <p className="text-xs text-gray-text line-clamp-3">
+                {strippedDescription}
+              </p>
+            )}
+
+            <p className="text-xs text-gray-text">{dateText}</p>
+          </div>
         </div>
-
-        {/* Content column */}
-        <div className="flex flex-col gap-2 min-w-0">
-          {/* Source badge — only when sourceName is truthy */}
-          {resource.sourceName && (
-            <span className="inline-flex items-center self-start rounded-full bg-brand-primary-light px-2 py-0.5 text-xs font-semibold text-brand-primary">
-              {resource.sourceName}
-            </span>
-          )}
-
-          <h3 className="text-sm font-bold text-brand-dark leading-snug">
-            {resource.title}
-          </h3>
-
-          {resource.description && (
-            <p className="text-xs text-gray-text line-clamp-3">
-              {resource.description}
-            </p>
-          )}
-
-          <p className="text-xs text-gray-text">{dateText}</p>
-
-          {/* Primary CTA — only when url is truthy */}
-          {resource.url && (
-            <a
-              href={resource.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-1.5 self-start rounded-xl bg-brand-primary px-4 py-2.5 text-xs font-semibold text-white transition-colors hover:bg-brand-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
-              aria-label={`Ver la fuente completa de ${resource.title} (se abre en una nueva pestaña)`}
-            >
-              Ver fuente completa
-              <ExternalLink className="h-4 w-4" aria-hidden="true" />
-            </a>
-          )}
-        </div>
-      </div>
+      </button>
     </article>
   );
 }
