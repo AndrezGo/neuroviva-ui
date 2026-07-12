@@ -31,6 +31,8 @@ export interface PatientResource {
   sourceName: string | null;
   /** Real publish date of the original article (ISO). Null for Admin-curated news (use createdAt). */
   publishedAt: string | null;
+  /** Raw author list string from Europe PMC ("Apellido Iniciales, ..."). Null for Admin-curated resources. */
+  authors: string | null;
 }
 
 /** DTO returned by GET /api/v1/curator/resources/pending */
