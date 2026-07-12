@@ -8,11 +8,6 @@ import { stripHtml } from '@/shared/lib/stripHtml';
 
 interface NewsCardProps {
   resource: PatientResource;
-  /**
-   * Called when the user clicks "Ver fuente completa" to open the in-app
-   * article viewer. Only fired when `resource.url` is truthy.
-   */
-  onOpenArticle?: (resource: PatientResource) => void;
 }
 
 const MONTHS_ES = [
@@ -29,12 +24,12 @@ function formatDate(iso: string): string {
 /**
  * Pure presentational card for a patient news resource.
  * No fetching. Renders a newspaper icon tile, source badge, title, description,
- * and date. When `resource.url` is truthy, a "Ver fuente completa" CTA button
- * is rendered at the bottom of the card — it fires `onOpenArticle` so the
- * parent can open the in-app article viewer.
+ * and date. When `resource.url` is truthy, a "Ver fuente completa" CTA anchor
+ * is rendered at the bottom of the card — it opens the source article in a new
+ * browser tab via a plain <a> element.
  * The card root is a plain <article> and is NOT itself interactive.
  */
-export function NewsCard({ resource, onOpenArticle }: NewsCardProps) {
+export function NewsCard({ resource }: NewsCardProps) {
   const [dateText, setDateText] = useState<string>(
     resource.publishedAt ? formatDate(resource.publishedAt) : formatDate(resource.createdAt),
   );
@@ -88,15 +83,16 @@ export function NewsCard({ resource, onOpenArticle }: NewsCardProps) {
       {/* CTA — only when a URL is available */}
       {resource.url && (
         <div className="mt-3 flex justify-end">
-          <button
-            type="button"
-            onClick={() => onOpenArticle?.(resource)}
+          <a
+            href={resource.url}
+            target="_blank"
+            rel="noopener noreferrer"
             aria-label={`Ver la fuente completa de ${strippedTitle}`}
             className="inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold text-brand-primary hover:bg-brand-primary-light transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
           >
             Ver fuente completa
             <ExternalLink className="h-4 w-4" aria-hidden="true" />
-          </button>
+          </a>
         </div>
       )}
     </article>
