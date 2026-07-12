@@ -5,7 +5,7 @@ import { Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import { usePatientFeed } from '@/application/patient/usePatientFeed';
 import type { PatientResource } from '@/domain/content/content.types';
 import { NewsCard } from './NewsCard';
-import { NewsDetailSheet } from './NewsDetailSheet';
+import { ArticleViewerModal } from './ArticleViewerModal';
 import { Button } from '@/presentation/ui/Button';
 
 const PAGE_SIZE = 5;
@@ -21,7 +21,7 @@ export function PatientNewsScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [page, setPage] = useState(1);
   const [selectedResource, setSelectedResource] = useState<PatientResource | null>(null);
-  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [isViewerOpen, setIsViewerOpen] = useState(false);
 
   const filteredResources = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
@@ -50,14 +50,14 @@ export function PatientNewsScreen() {
     setPage(1);
   }, []);
 
-  const handleSelectResource = useCallback((resource: PatientResource) => {
+  const handleOpenArticle = useCallback((resource: PatientResource) => {
     setSelectedResource(resource);
-    setIsSheetOpen(true);
+    setIsViewerOpen(true);
   }, []);
 
-  // Keep selectedResource set on close so the sheet content does not blank
+  // Keep selectedResource set on close so the viewer content does not blank
   // out during the exit animation — only clear the open flag.
-  const handleCloseSheet = useCallback(() => setIsSheetOpen(false), []);
+  const handleCloseViewer = useCallback(() => setIsViewerOpen(false), []);
 
   const isEmpty = !isLoading && !isError && resources.length === 0;
   const noSearchResults =
@@ -141,7 +141,7 @@ export function PatientNewsScreen() {
           <ul className="flex flex-col gap-3" aria-label="Lista de noticias">
             {pagedResources.map((resource) => (
               <li key={resource.id}>
-                <NewsCard resource={resource} onSelect={handleSelectResource} />
+                <NewsCard resource={resource} onOpenArticle={handleOpenArticle} />
               </li>
             ))}
           </ul>
@@ -179,11 +179,11 @@ export function PatientNewsScreen() {
         </>
       )}
 
-      {/* Detail sheet — always mounted so the enter/exit animation plays */}
-      <NewsDetailSheet
+      {/* Article viewer — always mounted so open/close toggling works without remounting */}
+      <ArticleViewerModal
         resource={selectedResource}
-        open={isSheetOpen}
-        onClose={handleCloseSheet}
+        open={isViewerOpen}
+        onClose={handleCloseViewer}
       />
     </div>
   );
