@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { DM_Sans, Inter } from 'next/font/google';
 import './globals.css';
 import { AccessibilityEffect } from '@/presentation/providers/AccessibilityEffect';
+import { ToastViewport } from '@/presentation/ui/ToastViewport';
 
 /**
  * DM Sans — confident, modern display font for medical trust.
@@ -83,6 +84,8 @@ export default function RootLayout({
         {/* Client island: reflects usePreferencesStore into data-attributes in real time */}
         <AccessibilityEffect />
         {children}
+        {/* Global toast portal — single mount point for all sections (Admin, Patient, Doctor, Caregiver) */}
+        <ToastViewport />
       </body>
     </html>
   );
