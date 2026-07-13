@@ -27,6 +27,8 @@ export interface PatientResource {
   channelId: string | null;
   /** Display name of the channel, populated only when type is Video. */
   channelName: string | null;
+  /** Channel avatar image URL; null when the channel has no avatar configured. */
+  channelAvatarUrl: string | null;
   /** Name of the outlet/publication (e.g. "El Tiempo"). Null for Admin-curated news. */
   sourceName: string | null;
   /** Real publish date of the original article (ISO). Null for Admin-curated news (use createdAt). */

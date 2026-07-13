@@ -21,18 +21,21 @@ import type {
  * Type param uses snake_case (news | scientific_article | video) as required by the backend.
  * Optional `lang` ('es' | 'en') filters results by language; only meaningful for
  * scientific_article — the backend silently ignores it for news and video.
- * When `lang` is omitted the URL is byte-for-byte identical to the previous
- * `/api/v1/patient/resources?type=${type}`, so existing callers are unaffected.
+ * Optional `channelId` restricts results to a single channel; only meaningful for
+ * video — the backend silently ignores it for other types.
+ * When both `lang` and `channelId` are omitted the URL is byte-for-byte identical
+ * to the previous `/api/v1/patient/resources?type=${type}`.
  */
 export async function getPatientResources(
   token: string,
   type: ResourceRequestType,
   lang?: 'es' | 'en',
+  channelId?: string,
 ): Promise<PatientResource[]> {
-  const url = lang
-    ? `/api/v1/patient/resources?type=${type}&lang=${lang}`
-    : `/api/v1/patient/resources?type=${type}`;
-  return apiRequest<PatientResource[]>(url, {
+  const params = new URLSearchParams({ type });
+  if (lang) params.set('lang', lang);
+  if (channelId) params.set('channelId', channelId);
+  return apiRequest<PatientResource[]>(`/api/v1/patient/resources?${params.toString()}`, {
     method: 'GET',
     token,
   });

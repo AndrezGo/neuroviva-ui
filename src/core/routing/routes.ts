@@ -20,6 +20,7 @@ export const routes = {
   patientHome: () => '/paciente' as const,
   patientNews: () => '/paciente/noticias' as const,
   patientChannels: () => '/paciente/canales' as const,
+  patientChannelDetail: (channelId: string) => `/paciente/canales/${channelId}` as const,
   patientCommunity: () => '/paciente/comunidad' as const,
   patientGroupFeed: (groupId: string) => `/paciente/comunidad/${groupId}` as const,
   patientArticles: () => '/paciente/articulos' as const,

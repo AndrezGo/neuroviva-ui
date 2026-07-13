@@ -16,12 +16,13 @@ export interface UsePatientFeedReturn {
 
 /**
  * Fetches the patient content feed for a given resource type.
- * Switching `type` or `lang` triggers a fresh fetch (both are dependencies).
+ * Switching `type`, `lang`, or `channelId` triggers a fresh fetch (all are dependencies).
  * `lang` is optional; when omitted no lang query param is sent (backend defaults to 'es').
- * Only meaningful for scientific_article — news/video callers can omit it safely.
+ * `channelId` is optional; when provided only videos from that channel are returned.
+ * Only meaningful for scientific_article/video — news callers can omit both safely.
  * Mirrors the fetch pattern from useCaregiverSymptoms.
  */
-export function usePatientFeed(type: ResourceRequestType, lang?: 'es' | 'en'): UsePatientFeedReturn {
+export function usePatientFeed(type: ResourceRequestType, lang?: 'es' | 'en', channelId?: string): UsePatientFeedReturn {
   const [resources, setResources] = useState<PatientResource[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
@@ -50,7 +51,7 @@ export function usePatientFeed(type: ResourceRequestType, lang?: 'es' | 'en'): U
           return;
         }
 
-        const data = await getPatientResources(token, type, lang);
+        const data = await getPatientResources(token, type, lang, channelId);
 
         if (!active.current) return;
         setResources(data);
@@ -68,7 +69,7 @@ export function usePatientFeed(type: ResourceRequestType, lang?: 'es' | 'en'): U
         }
       }
     },
-    [type, lang],
+    [type, lang, channelId],
   );
 
   useEffect(() => {
