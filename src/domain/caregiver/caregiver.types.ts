@@ -163,30 +163,6 @@ export interface AppNotification {
   createdAt: string;
 }
 
-// ── Clinical History ────────────────────────────────────────────────────────
-
-export interface HistoryEvent {
-  id: string;
-  type: string; // "symptom" | "consultation" | "exam" | "procedure" | "teleconsultation" | "medication" | "note" | "other"
-  title: string;
-  description?: string | null;
-  eventDate: string; // ISO 8601
-  status?: string | null; // present only for appointment-type events
-  attachmentUrl?: string | null; // short-lived signed URL, freshly minted each fetch
-  attachmentFileName?: string | null; // original filename for display
-}
-
-export interface CreateHistoryNoteInput {
-  eventType: string; // "consultation" | "exam" | "note" | "other"
-  description: string;
-  eventDate?: string | null; // optional; backend uses "now" if omitted
-  attachment?: File | null; // optional browser File for multipart upload
-}
-
-export interface CreateHistoryNoteResult {
-  recordId: string;
-}
-
 // ── Notifications ────────────────────────────────────────────────────────────
 
 export interface AppNotification {

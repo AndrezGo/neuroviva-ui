@@ -20,9 +20,6 @@ import type {
   Symptom,
   CreateSymptomPayload,
   UpdateSymptomPayload,
-  HistoryEvent,
-  CreateHistoryNoteInput,
-  CreateHistoryNoteResult,
   AppNotification,
 } from '@/domain/caregiver/caregiver.types';
 
@@ -248,29 +245,6 @@ export async function deleteSymptom(
   await apiRequest<void>(`/api/v1/caregiver/symptoms/${symptomId}`, {
     method: 'DELETE',
     token,
-  });
-}
-
-// ── Clinical History ──────────────────────────────────────────────────────────
-
-export async function getClinicalHistory(token: string): Promise<HistoryEvent[]> {
-  return apiRequest<HistoryEvent[]>('/api/v1/caregiver/history', { method: 'GET', token });
-}
-
-export async function addHistoryNote(
-  token: string,
-  input: CreateHistoryNoteInput,
-): Promise<CreateHistoryNoteResult> {
-  const formData = new FormData();
-  formData.append('EventType', input.eventType);
-  formData.append('Description', input.description);
-  if (input.eventDate) formData.append('EventDate', input.eventDate);
-  if (input.attachment) formData.append('Attachment', input.attachment);
-
-  return apiRequest<CreateHistoryNoteResult>('/api/v1/caregiver/history', {
-    method: 'POST',
-    token,
-    body: formData,
   });
 }
 

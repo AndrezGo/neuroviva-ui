@@ -1,9 +1,11 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { cn } from '@/shared/lib/cn';
 import { formatRelativeTime } from '@/shared/lib/relativeTime';
 import { DoctorTabBar } from './DoctorTabBar';
+import { routes } from '@/core/routing/routes';
 import type { DoctorPatient, AlertPriority } from '@/domain/doctor/doctor.types';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -187,7 +189,12 @@ export function DoctorPatientsScreen({
 
                 return (
                   <li key={patient.patientId}>
-                    <article className="flex items-center gap-3 rounded-2xl bg-white shadow-sm border border-gray-100 px-4 py-3.5">
+                    <Link
+                      href={routes.doctorPatientDetail(patient.patientId)}
+                      aria-label={`Ver historial de ${patient.name}`}
+                      className="block rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
+                    >
+                    <article className="flex items-center gap-3 rounded-2xl bg-white shadow-sm border border-gray-100 px-4 py-3.5 transition-colors hover:border-brand-primary/40">
                       {/* Avatar */}
                       <div
                         aria-hidden="true"
@@ -225,6 +232,7 @@ export function DoctorPatientsScreen({
                         {badge.label}
                       </span>
                     </article>
+                    </Link>
                   </li>
                 );
               })}

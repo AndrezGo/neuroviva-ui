@@ -16,6 +16,7 @@ export const routes = {
   doctorAlerts: () => '/doctor/alertas' as const,
   doctorCuraduria: () => '/doctor/curaduria' as const,
   doctorProfile: () => '/doctor/perfil' as const,
+  doctorPatientDetail: (patientId: string) => `/doctor/pacientes/${patientId}/historia` as const,
   // Patient home (new shell-based route)
   patientHome: () => '/paciente' as const,
   patientNews: () => '/paciente/noticias' as const,
